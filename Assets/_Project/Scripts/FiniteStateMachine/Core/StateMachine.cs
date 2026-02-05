@@ -1,64 +1,58 @@
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
+
 
 namespace FiniteStateMachine.Core
 {
-    public enum DefaultState
+    public interface IStateMachine 
     {
-        Any,
-        Enter,
-        Exit
+        public void RequestResettle();
+        public string GetFullPath();
     }
 
-    public partial class StateMachine<EStateId> : IState
+    public abstract partial class StateMachine<EStateId> : IState, IStateMachine
     {
-
         private const int MAX_TRANSITION_DEPTH = 10;
+
+        protected IStateMachine machine;
 
         private bool _isRoot = true;
         public bool IsRoot => _isRoot;
 
         private bool _isInitialized;
-        public bool IsInitialized;
+        public bool IsInitialized => _isInitialized;
 
         private bool _exited = false;
-        public bool Exited;
+        public bool Exited => _exited;
+
+        private bool _resettleRequested = false;
+        public bool ResettleRequested => _resettleRequested;
 
         private StateNode _currentNode;
+        private bool _currentNodeExists;
         private Dictionary<EStateId, StateNode> _states = new ();
 
-        private EStateId _intialState;
-        public EStateId InitialState;
+        private EStateId _defaultState;
+        private bool _processDefault;
+        public EStateId DefaultState => _defaultState;
 
-        private HashSet<TransitionNode> _anyTransitions=new();
-        private HashSet<TransitionNode> _enterTransitions=new();
-        private Dictionary<EStateId, ITransition> _exitTransitions = new();
+        private List<TransitionNode> _anyTransitions = new();
+        private List<TransitionNode> _enterTransitions = new();
+        private Dictionary<EStateId, List<ITransition>> _exitTransitions = new();
+        private List<ITransition> _anyExitTransitions = new();
+        private List<ITransition> _enterExitTransitions = new();
 
         private ITransition _exitTransition;
         public ITransition ExitTransition => _exitTransition;
-
-        private class MachineExitTransition : ITransition
-        {
-            private readonly StateMachine<EStateId> _machine;
-
-            public MachineExitTransition(StateMachine<EStateId> machine)
-            {
-                _machine = machine;
-            }
-
-            public bool Evaluate()
-                => _machine.Exited;
-        }
 
         public StateMachine()
         {
             _exitTransition = new MachineExitTransition(this);
         }
 
-        public void Initialize<ParentStateId>(ParentStateId id)
+        public void Initialize(IStateMachine machine)
         {
             _isRoot = false;
-            _isInitialized = true;
+            this.machine = machine;
         }
 
         public virtual void Enter()
@@ -66,74 +60,135 @@ namespace FiniteStateMachine.Core
             if (!_isInitialized)
                 return;
 
+            DoEnter();
+        }
+
+        private void DoEnter()
+        {
             _exited = false;
 
-            HandleEnterTransition();
-        }
+            if (TryEnterExitTransition())
+            {
+                DoExit();
+                return;
+            }
+
+            bool enterEvaluated = TryEnterTransition(out var node);
+            if (enterEvaluated)
+                _currentNode = _states[node.To];
+            else
+                _currentNode = _states[_defaultState];
+
+            _currentNodeExists = true;
+            _currentNode.State.Enter();
+
+            bool immediate = (enterEvaluated && node.Immediate) || _processDefault;
+            if (immediate)
+                Settle();
+        } 
 
         public virtual void Exit()
         {
-            if (!_isInitialized)
+            if (!_isInitialized || _exited)
                 return;
 
-            _exited = true;
+            DoExit();
         }
 
         public void AddState(EStateId id, IState state)
         {
+            AssertDoesNotContainState(id);
+
             StateNode node = new StateNode(id, state);
-            state.Initialize(id);
+            state.Initialize(this);
             _states.Add(id, node);
         }
 
+        #region Adding Transitions
         public void AddTransition(EStateId from, EStateId to, ITransition transition, bool immediate = false)
         {
-            if (!_states.TryGetValue(from, out StateNode fromNode))
-                throw new StateMachineException($"State {from.ToString()} does not exist!");
-            if (!_states.ContainsKey(to))
-                throw new StateMachineException($"State {to.ToString()} does not exist!");
+            AssertDifferentStates(from, to);
+            AssertGetState(from, out StateNode fromNode);
+            AssertContainsState(to);
 
             fromNode.AddTransition(to, transition, immediate);
         }
 
-        public void AddTransition(DefaultState from, EStateId to, ITransition transition, bool immediate = false)
+        public void AddAnyTransition(EStateId to, ITransition transition, bool immediate = false)
         {
-            if (from == DefaultState.Exit)
-                throw new StateMachineException($"Cannot create transitions from {from}");
-            if (!_states.ContainsKey(to))
-                throw new StateMachineException($"State {to.ToString()} does not exist!");
+            AssertContainsState(to);
 
-            var node = new TransitionNode(to, transition, immediate);
-
-            if (from == DefaultState.Enter)
-                _enterTransitions.Add(node);
-            else if (from == DefaultState.Any)
-                _anyTransitions.Add(node);
+            _anyTransitions.Add(new TransitionNode(to, transition, immediate));
         }
 
-        public void AddTransition(EStateId from, DefaultState to, ITransition transition, bool immediate = false)
+        public void AddEnterTransition(EStateId to, ITransition transition, bool immediate = false)
         {
-            if (!_states.TryGetValue(from, out StateNode fromNode))
-                throw new StateMachineException($"State {from.ToString()} does not exist!");
-            if (to == DefaultState.Enter || to == DefaultState.Any)
-                throw new StateMachineException($"Cannot create transitions to {to}");
+            AssertContainsState(to);
 
-            _exitTransitions.Add(from, transition);
+            _enterTransitions.Add(new TransitionNode(to, transition, immediate));
         }
 
-        public void Run(EStateId initialState, bool process = false)
+        public void AddExitTransition(EStateId from, ITransition transition)
         {
-            if (!_states.ContainsKey(initialState))
-                throw new StateMachineException($"State {initialState} does not exist!");
-            
-            _intialState = initialState;
+            AssertContainsState(from);
 
-            _isInitialized = true;
+            if(_exitTransitions.TryGetValue(from, out var list))
+                list.Add(transition);
+            else
+                _exitTransitions.Add(from, new List<ITransition>{transition});
+        }
 
-            Enter();
+        // bool immediate asks for resettle?
+        public void AddAnyExitTransition(ITransition transition)
+            => _anyExitTransitions.Add(transition);
+
+        public void AddEnterExitTransition(ITransition transition)
+            => _enterExitTransitions.Add(transition);
+        #endregion
+
+        #region Assertions
+        private void AssertContainsState(EStateId id)
+        {
+            if (!_states.ContainsKey(id))
+                throw new StateMachineException($"State {id.ToString()} does not exist!");
+        }
+
+        private void AssertGetState(EStateId id, out StateNode node)
+        {
+            if (!_states.TryGetValue(id, out node))
+                throw new StateMachineException($"State {id.ToString()} does not exist!");
+        }
+
+        private void AssertDoesNotContainState(EStateId id)
+        {
+            if (_states.ContainsKey(id))
+                throw new StateMachineException($"State {id.ToString()} is already added!");
+        }
+
+        private void AssertDifferentStates(EStateId id1, EStateId id2)
+        {
+            if (id1.Equals(id2))
+                throw new StateMachineException($"Passed states ({id1.ToString()}) are the same!");
+        }
+        #endregion
+
+        public void Run(EStateId defaultState, bool process = false)
+        {
+            SetDefault(defaultState);
+            if (_isRoot)
+                Enter();
 
             if (process)
                 ProcessMachine();
+        }
+
+        public void SetDefault(EStateId defaultState, bool process = false)
+        {
+            AssertContainsState(defaultState);
+
+            _defaultState = defaultState;
+            _processDefault = process;
+            _isInitialized = true;
         }
 
         public virtual void Process()
@@ -146,24 +201,51 @@ namespace FiniteStateMachine.Core
 
         private void ProcessMachine()
         {
-            for (int i = 0; i < MAX_TRANSITION_DEPTH; i++)
+            bool mustProcess = Settle();
+
+            if (mustProcess)
+                _currentNode.State.Process();
+
+            if (_resettleRequested)
             {
-                if (TryExitTransition())
+                Settle();
+                _resettleRequested = false;
+            }
+        }
+
+        private bool Settle()
+        {
+            bool settled = false;
+
+            for (int currentDepth = 0; currentDepth < MAX_TRANSITION_DEPTH; currentDepth++)
+            {
+
+                if (TryAnyExitTransition() || TryCurrentExitTransition())
                 {
-                    HandleExitTransition();
-                    return;
+                    DoExit();
+                    return false;
                 }
 
-                if (!TryTransition(out TransitionNode transition))
+                if (settled) 
+                    break;
+
+                TransitionNode transition;
+                bool evaluated = TryAnyTransition(out transition) || TryCurrentTransition(out transition);
+
+                if (!evaluated)
                     break;
 
                 ChangeState(transition.To);
 
-                if (!transition.Immediate)
-                    break;
+                settled = !transition.Immediate;
             }
 
-            _currentNode.State.Process();
+            return !_exited;
+        }
+
+        public void RequestResettle()
+        {
+            _resettleRequested = true;
         }
 
         private void ChangeState(EStateId nextId)
@@ -176,34 +258,59 @@ namespace FiniteStateMachine.Core
             _currentNode.State.Enter();
         }
 
-        private bool TryTransition(out TransitionNode transition)
+        private bool TryCurrentTransition(out TransitionNode transition)
+            => AnyTransition(_currentNode.Transitions, out transition);
+
+        private bool TryCurrentExitTransition()
+            => _exitTransitions.TryGetValue(_currentNode.Id, out var container) && AnyTransition(container);
+
+        private bool TryAnyExitTransition()
+            => AnyTransition(_anyExitTransitions);
+
+        private bool TryEnterExitTransition()
+            => AnyTransition(_enterExitTransitions);
+
+        private bool TryAnyTransition(out TransitionNode transition)
+            => AnyTransition(_anyTransitions, out transition);
+
+        private bool TryEnterTransition(out TransitionNode transition)
+            => AnyTransition(_enterTransitions, out transition);
+
+        #region Transition evaluation
+        private bool AnyTransition(List<TransitionNode> container,  out TransitionNode evaluated)
         {
-            foreach (TransitionNode anyTransition in _anyTransitions)
-                if (anyTransition.Evaluate())
+            foreach (TransitionNode node in container)
+                if (node.Evaluate())
                 {
-                    transition = anyTransition;
+                    if (_currentNodeExists && node.To.Equals(_currentNode.Id))
+                        continue;
+                    evaluated = node;
                     return true;
                 }
 
-            foreach (TransitionNode availableTransition in _currentNode.Transitions)
-                if (availableTransition.Evaluate())
-                {
-                    transition = availableTransition;
-                    return true;
-                }
-
-            transition = null;
+            evaluated = null;
             return false;
         }
 
-        private bool TryExitTransition()
-            => _exitTransitions.TryGetValue(_currentNode.Id, out ITransition exitTransition) && exitTransition.Evaluate();
+        private bool AnyTransition(List<ITransition> container)
+        {
+            foreach (ITransition transition in container)
+                if (transition.Evaluate())
+                    return true;
 
-        private void HandleExitTransition()
+            return false;
+        }
+        #endregion
+
+        private void DoExit()
         {
             _exited = true;
 
-            _currentNode.State.Exit();
+            // Ask parent fsm to check transitions in case they depend on this fsm's exit
+            if (!_isRoot)
+                machine.RequestResettle();
+
+            _currentNode?.State.Exit();
         }
 
         public void HandleEnterTransition()
@@ -216,7 +323,7 @@ namespace FiniteStateMachine.Core
                     return;
                 }
 
-            _currentNode = _states[_intialState];
+            _currentNode = _states[_defaultState];
             _currentNode.State.Enter();
         }
 

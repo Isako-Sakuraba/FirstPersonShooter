@@ -2,7 +2,7 @@ namespace FiniteStateMachine.Core
 {
     public interface IState
     {
-        public void Initialize<EStateId>(EStateId id);
+        public void Initialize(IStateMachine machine);
         
         public void Enter();
         public void Exit();

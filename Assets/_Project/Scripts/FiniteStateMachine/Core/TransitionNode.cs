@@ -1,6 +1,6 @@
 namespace FiniteStateMachine.Core
 {
-    public partial class StateMachine<EStateId>
+    public abstract partial class StateMachine<EStateId>
     {
         private class TransitionNode
         {

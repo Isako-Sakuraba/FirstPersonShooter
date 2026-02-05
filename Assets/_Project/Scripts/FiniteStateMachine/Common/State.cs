@@ -4,7 +4,12 @@ namespace FiniteStateMachine.Common
 {
     public abstract class State : IState
     {
-        public virtual void Initialize<EStateId>(EStateId id) { }
+        protected IStateMachine machine;
+
+        public virtual void Initialize(IStateMachine machine)
+        {
+            this.machine = machine;
+        }
 
         public virtual void Enter() { }
         public virtual void Exit() { }
@@ -14,6 +19,5 @@ namespace FiniteStateMachine.Common
         {
             return idInParent.ToString();
         }
-
     }
 }
