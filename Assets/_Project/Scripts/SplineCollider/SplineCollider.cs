@@ -32,18 +32,23 @@ public class SplineCollider : MonoBehaviour
 
     [SerializeField] private Transform _container;
 
-    [SerializeField] private int _resolution = 10;
-    [SerializeField] private float _distance = 10;
+    [SerializeField] private int _resolution = 20;
+    [SerializeField] private float _distance = 2f;
 
     [SerializeField] private float _radius = 0.5f;
-    [SerializeField] private float _mergeAngle = 20f;
-    [SerializeField] private int _maxSplitLevel = 2;
+    [SerializeField] private float _mergeAngle = 5f;
+    [SerializeField] private int _maxSplitLevel = 1;
 
     
-
     private SplineContainer _spline;
     private bool _splineNotNull = false;
     private List<Point> _points = new();
+
+    private Dictionary<Collider, int> _trackedObjects = new();
+
+    public bool IsTouching(Collider other)
+        => _trackedObjects.TryGetValue(other, out int count) && count > 0;
+
 
     private void OnValidate()
     {
@@ -54,18 +59,48 @@ public class SplineCollider : MonoBehaviour
     {
         if (_splineNotNull)
             return;
+
         _spline = GetComponent<SplineContainer>();
         _splineNotNull = true;
     }
 
-    [ContextMenu("Generate")]
-    private void GenerateCollider()
+    [ContextMenu("Bake")]
+    private void Bake()
     {
         if (_container == null)
             return;
 
-        DisposeOfChildColliders();
+        ClearEverything();
 
+        int limit = CalculateLimit();
+
+        RegisterPoints(limit);
+
+        if (_postProcess.HasFlag(PostProcess.Merge))
+            Merge();
+
+        if (_postProcess.HasFlag(PostProcess.Split))
+            Split(limit);
+
+        GenerateColliders();
+    }
+
+    [ContextMenu("Clear")]
+    private void ClearEverything()
+    {
+        if (_container == null)
+            return;
+
+        while (_container.childCount > 0)
+            DestroyImmediate(_container.GetChild(0).gameObject);
+
+        _points.Clear();
+        _trackedObjects.Clear();
+    }
+
+    #region Baking process
+    private int CalculateLimit()
+    {
         int limit = 1;
         if (_resolutionType == ResolutionType.Distance)
         {
@@ -78,55 +113,21 @@ public class SplineCollider : MonoBehaviour
             limit = _resolution;
         }
 
+        return limit;
+    }
+
+    private void RegisterPoints(int limit)
+    {
         for (int i = 0; i <= limit; i++)
         {
             float t = (float)i / limit;
             Point point = new Point { t = t, position = _spline.EvaluatePosition(t) };
             _points.Add(point);
         }
+    }
 
-        // Process merging
-        if (_postProcess.HasFlag(PostProcess.Merge))
-            for (int point = 1; point < _points.Count - 1; point++)
-            {
-                Vector3 past = _points[point - 1].position;
-                Vector3 current = _points[point].position;
-                Vector3 next = _points[point + 1].position;
-
-                float bend = 180f - Vector3.Angle((past - current), (next - current));
-                if (bend <= _mergeAngle)
-                {
-                    _points.RemoveAt(point);
-                    point--;
-                }
-
-            }
-
-        // Process splitting
-        if (_postProcess.HasFlag(PostProcess.Split))
-        {
-            float maxSplitDistance = (1f / limit) / Mathf.Pow(2f, _maxSplitLevel);
-            for (int i = 0; i < _points.Count - 1; i++)
-            {
-                Point current = _points[i];
-                Point next = _points[i + 1];
-
-                if (next.t - current.t <= maxSplitDistance)
-                    continue;
-
-                float middleT = (next.t + current.t) / 2f;
-                Vector3 middle = _spline.EvaluatePosition(middleT);
-
-                float bend = 180f - Vector3.Angle((current.position - middle), (next.position - middle));
-                if (bend > _mergeAngle)
-                {
-                    Point point = new Point { t = middleT, position = middle };
-                    _points.Insert(i + 1, point);
-                }
-            }
-        }
-
-        // Add colliders
+    private void GenerateColliders()
+    {
         for (int point = 0; point < _points.Count - 1; point++)
         {
             Vector3 start = _points[point].position;
@@ -135,37 +136,100 @@ public class SplineCollider : MonoBehaviour
         }
     }
 
-    public void OnTriggerEnter(Collider other)
+    private void Split(int limit)
+    {
+        float maxSplitDistance = (1f / limit) / Mathf.Pow(2f, _maxSplitLevel);
+        for (int i = 0; i < _points.Count - 1; i++)
+        {
+            Point current = _points[i];
+            Point next = _points[i + 1];
+
+            if (next.t - current.t <= maxSplitDistance)
+                continue;
+
+            float middleT = (next.t + current.t) / 2f;
+            Vector3 middle = _spline.EvaluatePosition(middleT);
+
+            float bend = 180f - Vector3.Angle((current.position - middle), (next.position - middle));
+            if (bend > _mergeAngle)
+            {
+                Point point = new Point { t = middleT, position = middle };
+                _points.Insert(i + 1, point);
+            }
+        }
+    }
+
+    private void Merge()
+    {
+        for (int point = 1; point < _points.Count - 1; point++)
+        {
+            Vector3 past = _points[point - 1].position;
+            Vector3 current = _points[point].position;
+            Vector3 next = _points[point + 1].position;
+
+            float bend = 180f - Vector3.Angle((past - current), (next - current));
+            if (bend <= _mergeAngle)
+            {
+                _points.RemoveAt(point);
+                point--;
+            }
+
+        }
+    }
+    #endregion
+
+    private void OnEnter(Collider other)
     {
         Debug.Log($"OnEnter: {other.gameObject.name}");
     }
 
-    [ContextMenu("Clear")]
-    private void Clear()
+    private void OnExit(Collider other)
     {
-        DisposeOfChildColliders();
+        Debug.Log($"OnExit: {other.gameObject.name}");
     }
+
+    #region Proxy events
+    public void OnProxyTriggerEnter(Collider other)
+    {
+        if (!_trackedObjects.TryGetValue(other, out var contacts))
+            contacts = 0;
+
+        contacts++;
+        _trackedObjects[other] = contacts;
+
+        if (contacts == 1)
+            OnEnter(other);
+    }
+
+    public void OnProxyTriggerExit(Collider other)
+    {
+        if (!_trackedObjects.TryGetValue(other, out var contacts))
+            return;
+
+        contacts--;
+        if (contacts <= 0)
+        {
+            _trackedObjects.Remove(other);
+            OnExit(other);
+        } else
+        {
+            _trackedObjects[other] = contacts;
+        }
+    }
+    #endregion
 
     private void Reset()
     {
-        DisposeOfChildColliders();
+        ClearEverything();
     }
 
-    private void DisposeOfChildColliders()
-    {
-        if (_container == null)
-            return;
-
-        while (_container.childCount > 0)
-            DestroyImmediate(_container.GetChild(0).gameObject);
-
-        _points.Clear();
-    }
 
     private CapsuleCollider CreateCapsuleCollider(Vector3 start, Vector3 end, float radius, Transform parent, bool isTrigger)
     {
-        var go = new GameObject("CapsuleCollider");
+        var go = new GameObject("SplineColliderPart");
         var collider = go.AddComponent<CapsuleCollider>();
+        var relay = go.AddComponent<SplineColliderEventRelay>();
+        relay.SetOwner(this);
 
         Vector3 middle = (start + end) / 2f;
         go.transform.SetParent(parent);
