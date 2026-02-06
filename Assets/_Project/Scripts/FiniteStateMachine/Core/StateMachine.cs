@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 
 namespace FiniteStateMachine.Core
@@ -60,6 +61,7 @@ namespace FiniteStateMachine.Core
             if (!_isInitialized)
                 return;
 
+            Debug.Log($"Entered {GetType().Name}");
             DoEnter();
         }
 

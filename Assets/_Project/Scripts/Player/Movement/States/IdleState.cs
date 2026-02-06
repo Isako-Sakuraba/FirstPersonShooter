@@ -11,5 +11,10 @@ namespace Game.Player.Movement.States
         {
             context.State.Velocity = Vector3.zero;
         }
+
+        public override void Exit()
+        {
+            Debug.Log("Exited idle");
+        }
     }
 }

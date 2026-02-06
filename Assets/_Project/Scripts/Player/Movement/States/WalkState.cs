@@ -18,5 +18,10 @@ namespace Game.Player.Movement.States
 
             context.State.Velocity = velocity;
         }
+
+        public override void Exit()
+        {
+            Debug.Log("Exited walk");
+        }
     }
 }

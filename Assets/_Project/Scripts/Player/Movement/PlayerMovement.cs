@@ -1,3 +1,4 @@
+using ECM2;
 using UnityEngine;
 using MovementFSM = Game.Player.Movement.PlayerMovementStateMachine;
 
@@ -7,7 +8,7 @@ namespace Game.Player.Movement
     {
         [SerializeField] private PlayerMovementData _movementData;
 
-        private CharacterController _controller;
+        private CharacterMovement _controller;
 
         private PlayerContext _context;
         private PlayerState _state;
@@ -19,13 +20,13 @@ namespace Game.Player.Movement
         private void OnGUI()
         {
             GUI.Label(new Rect(0f, 0f, 500f, 20f), $"State: {_machine.GetFullPath()}");
-            GUI.Label(new Rect(0f, 20f, 300f, 20f), $"Grounded: {_state.IsGrounded}");
+            GUI.Label(new Rect(0f, 20f, 300f, 20f), $"Grounded: {_context.IsGrounded}");
         }
 
         private void Awake()
         {
             Debug.Assert(_movementData != null, "MovementData is null!");
-            _controller = GetComponent<CharacterController>();
+            _controller = GetComponent<CharacterMovement>();
 
             InitializeModules();
         }
@@ -45,10 +46,8 @@ namespace Game.Player.Movement
 
         private void FixedUpdate()
         {
-            _state.IsGrounded = CheckGrounded();
-            Debug.Log($"Jump is pressed: {_input.Jump}");
             _machine.Process();
-            _controller.Move(_state.Velocity * Time.fixedDeltaTime);
+            _controller.Move(_state.Velocity, Time.fixedDeltaTime);
         }
 
         private bool CheckGrounded()
@@ -60,7 +59,6 @@ namespace Game.Player.Movement
     public class PlayerState
     {
         public Vector3 Velocity;
-        public bool IsGrounded;
     }
 
     public class PlayerInput
@@ -80,13 +78,14 @@ namespace Game.Player.Movement
     public class PlayerContext
     {
         public readonly PlayerMovementData Data;
-        public readonly CharacterController Controller;
+        public readonly CharacterMovement Controller;
         public readonly PlayerInput Input;
         public readonly PlayerState State;
+        public bool IsGrounded => Controller.isGrounded;
 
         public PlayerContext(
             PlayerMovementData data, 
-            CharacterController controller, 
+            CharacterMovement controller, 
             PlayerInput input, 
             PlayerState state)
         {

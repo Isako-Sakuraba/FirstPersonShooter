@@ -77,28 +77,22 @@ namespace Game.Player.Movement
                 new Trans(context, 
                 (ctx) =>
                 {
-                    Debug.Log("Checked Any if grounded!");
-                    return ctx.State.IsGrounded;
+                    return ctx.IsGrounded;
                 });
 
             var airTransition =
                 new Trans(context,
                 (ctx) =>
                 {
-                    Debug.Log("Checked Any if not grounded!");
-                    return !ctx.State.IsGrounded;
+                    return !ctx.IsGrounded;
                 });
 
             var jumpTransition =
                 new Trans(context,
                 (ctx) =>
                 {
-                    return ctx.Input.Jump;
+                    return ctx.Input.Jump && ctx.IsGrounded;
                 });
-
-            var jumpDebugger = new LambdaActionTransition(jumpTransition, () => Debug.Log("Jump evaluated!"));
-
-
 
             // Any/Enter
             machine.AddEnterTransition(
@@ -116,12 +110,12 @@ namespace Game.Player.Movement
             );
 
             machine.AddAnyTransition(
-                PlayerMovementStateId.Grounded,
-                groundedTransition);
-
-            machine.AddAnyTransition(
                 PlayerMovementStateId.Airborne,
                 airTransition);
+
+            machine.AddAnyTransition(
+                PlayerMovementStateId.Grounded,
+                groundedTransition);
 
             //machine.AddAnyTransition(
             //    PlayerMovementStateId.Airborne,
