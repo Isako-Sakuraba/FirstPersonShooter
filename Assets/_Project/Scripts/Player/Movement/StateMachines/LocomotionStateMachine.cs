@@ -7,34 +7,34 @@ using TBundle = FiniteStateMachine.Common.TransitionBundle;
 
 namespace Game.Player.Movement
 {
-    public enum PlayerMovementStateId
+    public enum LocomotionState
     {
         Grounded,
         Airborne
     }
 
-    public class PlayerMovementStateMachine : StateMachine<PlayerMovementStateId> 
+    public class LocomotionStateMachine : StateMachine<LocomotionState> 
     {
         private PlayerContext _context;
 
         public GroundedStateMachine GFSM;
         public AirborneStateMachine AFSM;
 
-        public PlayerMovementStateMachine(PlayerContext context)
+        public LocomotionStateMachine(PlayerContext context)
         {
             _context = context;
         }
 
-        public static PlayerMovementStateMachine CreateDefault(PlayerContext context)
+        public static LocomotionStateMachine CreateDefault(PlayerContext context)
         {
-            PlayerMovementStateMachine machine = new(context);
+            LocomotionStateMachine machine = new(context);
 
             CreateStatesAndTransition(machine, context);
 
             return machine;
         }
 
-        private static void CreateStatesAndTransition(PlayerMovementStateMachine machine, PlayerContext context)
+        private static void CreateStatesAndTransition(LocomotionStateMachine machine, PlayerContext context)
         {
             var groundedFSM = new GroundedStateMachine();
             var airborneFSM = new AirborneStateMachine();
@@ -42,33 +42,33 @@ namespace Game.Player.Movement
             machine.GFSM = groundedFSM;
             machine.AFSM = airborneFSM;
 
-            var idleState = new IdleState(context);
-            var walkState = new WalkState(context);
+            var moveState = new MoveState(context);
             var jumpState = new JumpState(context);
             var fallState = new FallState(context);
 
+            // Register HFSMs
+            machine.AddState(LocomotionState.Grounded, groundedFSM);
+            machine.AddState(LocomotionState.Airborne, airborneFSM);
 
-            machine.AddState(PlayerMovementStateId.Grounded, groundedFSM);
-            machine.AddState(PlayerMovementStateId.Airborne, airborneFSM);
+            // Add grounded states
+            groundedFSM.AddState(GroundedState.Move, moveState);
+            groundedFSM.Run(GroundedState.Move);
 
-            groundedFSM.AddState(GroundedStateId.Idle, idleState);
-            groundedFSM.AddState(GroundedStateId.Walk, walkState);
-            groundedFSM.Run(GroundedStateId.Idle);
-
-            airborneFSM.AddState(AirborneStateId.Jump, jumpState);
-            airborneFSM.AddState(AirborneStateId.Fall, fallState);
-            airborneFSM.Run(AirborneStateId.Jump);
+            // Add airborne states
+            airborneFSM.AddState(AirborneState.Jump, jumpState);
+            airborneFSM.AddState(AirborneState.Fall, fallState);
+            airborneFSM.Run(AirborneState.Jump);
 
 
             CreateRootTransitions(machine, groundedFSM, airborneFSM, context);
             CreateGroundedTransitions(groundedFSM, context);
             CreateAirborneTransitions(airborneFSM, context);
 
-            machine.Run(PlayerMovementStateId.Airborne);
+            machine.Run(LocomotionState.Airborne);
         }
 
         private static void CreateRootTransitions(
-            PlayerMovementStateMachine machine,
+            LocomotionStateMachine machine,
             GroundedStateMachine groundFSM,
             AirborneStateMachine airFSM,
             PlayerContext context)
@@ -96,29 +96,29 @@ namespace Game.Player.Movement
 
             // Any/Enter
             machine.AddEnterTransition(
-                PlayerMovementStateId.Airborne,
+                LocomotionState.Airborne,
                 airTransition);
             machine.AddEnterTransition(
-                PlayerMovementStateId.Grounded,
+                LocomotionState.Grounded,
                 groundedTransition);
 
 
             // Grounded - Air
             machine.AddAnyTransition(
-                PlayerMovementStateId.Airborne,
+                LocomotionState.Airborne,
                 jumpTransition
             );
 
             machine.AddAnyTransition(
-                PlayerMovementStateId.Airborne,
+                LocomotionState.Airborne,
                 airTransition);
 
             machine.AddAnyTransition(
-                PlayerMovementStateId.Grounded,
+                LocomotionState.Grounded,
                 groundedTransition);
 
             //machine.AddAnyTransition(
-            //    PlayerMovementStateId.Airborne,
+            //    LocomotionState.Airborne,
             //    jumpDebugger);
         }
 
@@ -138,16 +138,6 @@ namespace Game.Player.Movement
                 {
                     return ctx.Input.Jump;
                 });
-
-            machine.AddTransition(
-                GroundedStateId.Idle,
-                GroundedStateId.Walk,
-                idleToWalk);
-
-            machine.AddTransition(
-                GroundedStateId.Walk,
-                GroundedStateId.Idle,
-                walkToIdle);
 
             //machine.AddAnyExitTransition(jumpTransition);
 
@@ -178,8 +168,11 @@ namespace Game.Player.Movement
 
             var notFromJump = new ReverseTransition(fromJump);
 
-            machine.AddEnterTransition(AirborneStateId.Jump, fromJump);
-            machine.AddEnterTransition(AirborneStateId.Fall, notFromJump);
+
+            machine.AddEnterTransition(AirborneState.Jump, fromJump, true);
+            machine.AddEnterTransition(AirborneState.Fall, notFromJump);
+
+            var trueTransition = new LambdaTransition(() => true);
 
             var jumpToFall = new Trans(context,
             (ctx) =>
@@ -187,7 +180,7 @@ namespace Game.Player.Movement
                 return ctx.State.Velocity.y <= 0;
             });
 
-            machine.AddTransition(AirborneStateId.Jump, AirborneStateId.Fall, jumpToFall);
+            machine.AddTransition(AirborneState.Jump, AirborneState.Fall, trueTransition);
         }
     }
 }

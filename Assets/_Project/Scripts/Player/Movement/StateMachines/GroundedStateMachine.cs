@@ -2,11 +2,11 @@ using FiniteStateMachine.Core;
 
 namespace Game.Player.Movement
 {
-    public enum GroundedStateId
+    public enum GroundedState
     {
-        Idle,
-        Walk
+        Move, // Idle, walking, running, crouching
+        Slide
     }
 
-    public class GroundedStateMachine : StateMachine<GroundedStateId> { }
+    public class GroundedStateMachine : StateMachine<GroundedState> { }
 }

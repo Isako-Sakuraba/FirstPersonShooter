@@ -61,7 +61,6 @@ namespace FiniteStateMachine.Core
             if (!_isInitialized)
                 return;
 
-            Debug.Log($"Entered {GetType().Name}");
             DoEnter();
         }
 
@@ -215,7 +214,7 @@ namespace FiniteStateMachine.Core
             }
         }
 
-        private bool Settle()
+        private bool Settle(bool processOverride = false)
         {
             bool settled = false;
 
@@ -241,6 +240,9 @@ namespace FiniteStateMachine.Core
 
                 settled = !transition.Immediate;
             }
+
+            if (processOverride)
+                return true;
 
             return !_exited;
         }
@@ -322,6 +324,8 @@ namespace FiniteStateMachine.Core
                 {
                     _currentNode = _states[transitionNode.To];
                     _currentNode.State.Enter();
+                    if (transitionNode.Immediate)
+                        Settle();
                     return;
                 }
 

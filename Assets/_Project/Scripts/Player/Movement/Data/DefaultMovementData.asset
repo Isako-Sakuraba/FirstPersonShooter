@@ -16,10 +16,11 @@ MonoBehaviour:
   GroundAcceleration: 10
   GroundFriction: 8
   StopSpeed: 2
-  AirSpeed: 4
-  AirAcceleration: 40
+  AirSpeed: 6
+  AirAcceleration: 6
+  AirAccelerationSpeedCap: 5
   JumpHeight: 2
-  Gravity: -10
+  Gravity: -18
   GroundMask:
     serializedVersion: 2
     m_Bits: 1

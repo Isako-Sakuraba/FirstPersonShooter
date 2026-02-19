@@ -14,6 +14,7 @@ namespace Game.Player.Movement
         [Header("Airborne settings")]
         public float AirSpeed = 4f;
         public float AirAcceleration = 40f;
+        public float AirAccelerationSpeedCap = 8f;
 
         [Header("Jump settings")]
         public float JumpHeight = 2f;

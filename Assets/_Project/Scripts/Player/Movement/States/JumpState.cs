@@ -8,7 +8,6 @@ namespace Game.Player.Movement.States
 
         public override void Enter()
         {
-            Debug.Log("Entered jump");
             context.State.Velocity.y += Mathf.Sqrt(context.Data.JumpHeight * context.Data.Gravity * -2f);
             context.Controller.PauseGroundConstraint();
         }
