@@ -112,6 +112,7 @@ namespace Game.Player.Movement
     {
         public Vector3 Velocity;
         public Stance Stance;
+        public bool IsSliding;
     }
 
     public class PlayerInput

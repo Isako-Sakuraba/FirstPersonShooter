@@ -15,13 +15,20 @@ namespace Game.Player.Movement.States
 
             _slideDirection = horizontal.normalized;
 
-            // Applu boost
+            // ApplY boost
             if (context.Data.EnterBoost > 0f)
             {
                 horizontal += _slideDirection * context.Data.EnterBoost;
                 context.State.Velocity.x = horizontal.x;
                 context.State.Velocity.z = horizontal.z;
             }
+
+            context.State.IsSliding = true;
+        }
+
+        public override void Exit()
+        {
+            context.State.IsSliding = false;
         }
 
         public override void Process()

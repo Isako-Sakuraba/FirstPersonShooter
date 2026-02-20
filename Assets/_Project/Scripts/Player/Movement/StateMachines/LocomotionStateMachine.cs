@@ -75,81 +75,56 @@ namespace Game.Player.Movement
             AirborneStateMachine airFSM,
             PlayerContext context)
         {
-            var groundedTransition = 
-                new Trans(context, 
-                (ctx) =>
-                {
-                    return ctx.IsGrounded;
-                });
+            var toAir = new Trans(context, ctx => !ctx.IsGrounded);
+            var toGround = new Trans(context, ctx => ctx.IsGrounded && !ctx.Input.Jump);
+            // ^ prevent instant "snap back" to Grounded on the jump press frame
 
-            var airTransition =
-                new Trans(context,
-                (ctx) =>
-                {
-                    return !ctx.IsGrounded;
-                });
+            var jumpToAir = new Trans(context, ctx => ctx.Input.Jump && ctx.IsGrounded);
 
-            var jumpTransition =
-                new Trans(context,
-                (ctx) =>
-                {
-                    return ctx.Input.Jump && ctx.IsGrounded;
-                });
+            // Enter transitions (initial selection)
+            machine.AddEnterTransition(LocomotionState.Airborne, toAir);
+            machine.AddEnterTransition(LocomotionState.Grounded, toGround);
 
-            // Any/Enter
-            machine.AddEnterTransition(
-                LocomotionState.Airborne,
-                airTransition);
-            machine.AddEnterTransition(
-                LocomotionState.Grounded,
-                groundedTransition);
-
-
-            // Grounded - Air
-            machine.AddAnyTransition(
-                LocomotionState.Airborne,
-                jumpTransition
-            );
-
-            machine.AddAnyTransition(
-                LocomotionState.Airborne,
-                airTransition);
-
-            machine.AddAnyTransition(
-                LocomotionState.Grounded,
-                groundedTransition);
-
-            //machine.AddAnyTransition(
-            //    LocomotionState.Airborne,
-            //    jumpDebugger);
+            // Any transitions (runtime)
+            machine.AddAnyTransition(LocomotionState.Airborne, jumpToAir); // priority
+            machine.AddAnyTransition(LocomotionState.Airborne, toAir);
+            machine.AddAnyTransition(LocomotionState.Grounded, toGround);
         }
 
         private static void CreateGroundedTransitions(GroundedStateMachine machine, PlayerContext context)
         {
-            var idleToWalk = new Trans(context,
-                (ctx) =>
+            // Helpers
+            float HorizontalSpeed(PlayerContext ctx)
+            {
+                var v = ctx.State.Velocity;
+                return new Vector3(v.x, 0f, v.z).magnitude;
+            }
+
+            // Move -> Slide
+            var toSlide = new Trans(context, ctx =>
+                ctx.IsGrounded &&
+                ctx.Input.Crouch &&                              // edge-triggered
+                HorizontalSpeed(ctx) >= ctx.Data.MinEnterSpeed
+            );
+
+            // Slide -> Move
+            var toMove = new Trans(context, ctx =>
                 {
-                    return ctx.Input.Move.sqrMagnitude != 0f;
-                });
+                    if (!ctx.IsGrounded) return false;
 
-            var walkToIdle = new ReverseTransition(idleToWalk);
+                    Vector3 v = ctx.State.Velocity;
+                    float speed = new Vector3(v.x, 0f, v.z).magnitude;
 
-            var jumpTransition =
-                new Trans(context,
-                (ctx) =>
-                {
-                    return ctx.Input.Jump;
-                });
+                    if (speed < ctx.Data.MinSlideSpeed || ctx.Body.Stance == Stance.Standing) return true;
 
-            //machine.AddAnyExitTransition(jumpTransition);
+                    return false;
+                }
+            );
 
-            //var anyToExit = new Trans(context, 
-            //    (ctx) =>
-            //    {
-            //        return !ctx.State.IsGrounded;
-            //    });
+            machine.AddTransition(GroundedState.Move, GroundedState.Slide, toSlide);
+            machine.AddTransition(GroundedState.Slide, GroundedState.Move, toMove);
 
-            //machine.AddAnyExitTransition(anyToExit);
+            // Note: Slide -> Airborne is handled by root transitions (jump press or !grounded).
         }
 
         private static void CreateAirborneTransitions(AirborneStateMachine machine, PlayerContext context)
