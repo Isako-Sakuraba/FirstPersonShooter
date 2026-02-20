@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Game.Player.Movement
@@ -6,7 +7,9 @@ namespace Game.Player.Movement
     public class PlayerMovementData : ScriptableObject
     {
         [Header("Ground settings")]
-        public float GroundSpeed = 8f;
+        public float WalkSpeed = 6f;
+        public float RunSpeed = 10f;
+        public float CrouchSpeed = 4f;
         public float GroundAcceleration = 10f;
         public float GroundFriction = 8f;
         public float StopSpeed = 2f;

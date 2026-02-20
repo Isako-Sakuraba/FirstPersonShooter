@@ -1,4 +1,5 @@
 {
+    "version": 1,
     "name": "InputSystem_Actions",
     "maps": [
         {
@@ -45,7 +46,7 @@
                     "name": "Crouch",
                     "type": "Button",
                     "id": "27c5f898-bc57-4ee1-8800-db469aca5fe3",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -469,6 +470,17 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
+                    "action": "Crouch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b9f64638-5ccf-4a2f-b321-c4f2e55ea590",
+                    "path": "<Keyboard>/leftCtrl",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
                     "action": "Crouch",
                     "isComposite": false,
                     "isPartOfComposite": false

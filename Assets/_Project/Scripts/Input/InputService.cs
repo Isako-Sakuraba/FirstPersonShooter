@@ -11,8 +11,7 @@ public class InputService : MonoBehaviour
         { 
             if (_instance == null)
             {
-                var go = new GameObject(nameof(InputService));
-                _instance = go.AddComponent<InputService>();
+                _instance = FindFirstObjectByType<InputService>();
             }
 
             return _instance;
@@ -25,21 +24,29 @@ public class InputService : MonoBehaviour
     }
 
     [SerializeField] private InputActionReference _moveAction;
+    [SerializeField] private InputActionReference _sprintAction;
+    [SerializeField] private InputActionReference _crouchAction;
     [SerializeField] private InputActionReference _mouseDeltaAction;
     [SerializeField] private InputActionReference _jumpAction;
 
     private Vector2 _move;
     private Vector2 _mouseDelta;
     private bool _jump;
+    private bool _sprint;
+    private bool _crouch;
 
     public Vector2 Move => _move;
     public Vector2 MouseDelta => _mouseDelta;
     public bool Jump => _jump;
+    public bool Sprint => _sprint;
+    public bool Crouch => _crouch;
 
     private void Update()
     {
         _move = _moveAction.action.ReadValue<Vector2>();
         _jump = _jumpAction.action.ReadValue<float>() > 0.1f;
         _mouseDelta = _mouseDeltaAction.action.ReadValue<Vector2>();
+        _sprint = _sprintAction.action.ReadValue<float>() > 0.1f;
+        _crouch = _crouchAction.action.ReadValue<float>() > 0.1f;
     }
 }

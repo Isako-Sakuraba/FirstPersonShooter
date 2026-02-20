@@ -57,7 +57,7 @@ namespace Game.Player.Movement
             // Add airborne states
             airborneFSM.AddState(AirborneState.Jump, jumpState);
             airborneFSM.AddState(AirborneState.Fall, fallState);
-            airborneFSM.Run(AirborneState.Jump);
+            airborneFSM.Run(AirborneState.Fall);
 
 
             CreateRootTransitions(machine, groundedFSM, airborneFSM, context);
@@ -169,16 +169,10 @@ namespace Game.Player.Movement
             var notFromJump = new ReverseTransition(fromJump);
 
 
-            machine.AddEnterTransition(AirborneState.Jump, fromJump, true);
             machine.AddEnterTransition(AirborneState.Fall, notFromJump);
+            machine.AddEnterTransition(AirborneState.Jump, fromJump);
 
             var trueTransition = new LambdaTransition(() => true);
-
-            var jumpToFall = new Trans(context,
-            (ctx) =>
-            {
-                return ctx.State.Velocity.y <= 0;
-            });
 
             machine.AddTransition(AirborneState.Jump, AirborneState.Fall, trueTransition);
         }

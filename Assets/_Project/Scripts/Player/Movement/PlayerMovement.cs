@@ -4,17 +4,27 @@ using MovementFSM = Game.Player.Movement.LocomotionStateMachine;
 
 namespace Game.Player.Movement
 {
+    public enum Stance
+    {
+        Standing,
+        Crouched
+    }
+
     public class PlayerMovement : MonoBehaviour
     {
         [SerializeField] private PlayerMovementData _movementData;
+        [SerializeField] private PlayerBodyData _bodyData;
         [SerializeField] private CharacterOrientation _orientation;
 
         private CharacterMovement _controller;
 
+        private BodyController _body;
         private PlayerContext _context;
         private PlayerState _state;
         private PlayerInput _input;
         private MovementFSM _machine;
+
+        public PlayerContext Conext => _context;
 
         private void OnGUI()
         {
@@ -22,8 +32,10 @@ namespace Game.Player.Movement
             GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, Vector3.one * 2);
             GUI.color = Color.black;
 
-            GUILayout.Label($"State: {_machine.GetFullPath()}");
+            GUILayout.Label($"Movement State: {_machine.GetFullPath()}");
             GUILayout.Label($"Grounded: {_context.IsGrounded}");
+            GUILayout.Label($"Stance: {_body.Stance}");
+            GUILayout.Label($"Input: [Move {_input.Move}] [Jump: {_input.Jump}] [Crouch: {_input.Crouch}]");
             GUILayout.Label($"Velocity Vector: {_context.State.Velocity}");
 
             var horizontal = new Vector2(_context.State.Velocity.x, _context.State.Velocity.z);
@@ -43,11 +55,13 @@ namespace Game.Player.Movement
         {
             _state = new PlayerState();
             _input = new PlayerInput();
+            _body = new BodyController(_controller, _bodyData);
 
             _context = new PlayerContext(
                 _movementData, 
                 _controller, 
                 _orientation, 
+                _body,
                 _input, 
                 _state
             );
@@ -97,17 +111,22 @@ namespace Game.Player.Movement
     public class PlayerState
     {
         public Vector3 Velocity;
+        public Stance Stance;
     }
 
     public class PlayerInput
     {
         public Vector2 Move;
         public bool Jump;
+        public bool Sprint;
+        public bool Crouch;
 
         public void Update()
         {
             Move = InputService.Instance.Move;
             Jump = InputService.Instance.Jump;
+            Sprint = InputService.Instance.Sprint;
+            Crouch = InputService.Instance.Crouch;
         }
     }
 
@@ -116,6 +135,7 @@ namespace Game.Player.Movement
         public readonly PlayerMovementData Data;
         public readonly CharacterMovement Controller;
         public readonly CharacterOrientation Orientation;
+        public readonly BodyController Body;
         public readonly PlayerInput Input;
         public readonly PlayerState State;
         public bool IsGrounded => Controller.isGrounded;
@@ -127,12 +147,14 @@ namespace Game.Player.Movement
             PlayerMovementData data,
             CharacterMovement controller,
             CharacterOrientation orientaiton,
+            BodyController body,
             PlayerInput input, 
             PlayerState state)
         {
             Data = data;
             Controller = controller;
             Orientation = orientaiton;
+            Body = body;
             Input = input;
             State = state;
         }
@@ -142,6 +164,8 @@ namespace Game.Player.Movement
             Input.Update();
             _wishDir = Orientation.Forward * Input.Move.y + Orientation.Right * Input.Move.x;
             _wishDir = Vector3.ClampMagnitude(_wishDir, 1f);
+
+            Body.Update(Input.Crouch ? Stance.Crouched : Stance.Standing);
         }
     }
 }
