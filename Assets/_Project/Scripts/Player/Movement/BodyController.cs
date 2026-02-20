@@ -26,7 +26,9 @@ namespace Game.Player.Movement
         public void Reset()
         {
             _controller.radius = _bodyData.Radius;
-            UpdateCollider(Stance.Standing);
+            _controller.SetHeight(_bodyData.StandingHeight);
+            _stance = Stance.Standing;
+            OnStanceChanged.Invoke(Stance);
         }
 
         public void Update(Stance target)
@@ -40,6 +42,7 @@ namespace Game.Player.Movement
             {
                 _controller.SetHeight(_bodyData.CrouchHeight);
                 _stance = Stance.Crouched;
+                OnStanceChanged.Invoke(_stance);
             }
             else if (_stance == Stance.Crouched && target == Stance.Standing)
             {
@@ -48,9 +51,8 @@ namespace Game.Player.Movement
 
                 _controller.SetHeight(_bodyData.StandingHeight);
                 _stance = Stance.Standing;
+                OnStanceChanged.Invoke(_stance);
             }
-
-            OnStanceChanged.Invoke(_stance);
         }
     }
 }

@@ -43,6 +43,7 @@ namespace Game.Player.Movement
             machine.AFSM = airborneFSM;
 
             var moveState = new MoveState(context);
+            var slideState = new SlideState(context);
             var jumpState = new JumpState(context);
             var fallState = new FallState(context);
 
@@ -52,6 +53,7 @@ namespace Game.Player.Movement
 
             // Add grounded states
             groundedFSM.AddState(GroundedState.Move, moveState);
+            groundedFSM.AddState(GroundedState.Slide, slideState);
             groundedFSM.Run(GroundedState.Move);
 
             // Add airborne states
