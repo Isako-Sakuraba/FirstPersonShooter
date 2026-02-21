@@ -24,9 +24,9 @@ MonoBehaviour:
   JumpHeight: 2
   Gravity: -18
   MinSlideEnterSpeed: 8
-  MinSlideSpeed: 3
+  MinSlideSpeed: 5
   SlideEnterBoost: 4
-  SlideFriction: 1
+  SlideFriction: 0.8
   SlideSteering: 6
   SlideSteeringMinSpeed: 4
   SlideDownhillAcceleration: 20
