@@ -10,7 +10,8 @@ namespace Game.Player.Movement
     public enum LocomotionState
     {
         Grounded,
-        Airborne
+        Airborne,
+        Wall
     }
 
     public class LocomotionStateMachine : StateMachine<LocomotionState> 
@@ -43,6 +44,7 @@ namespace Game.Player.Movement
             machine.AFSM = airborneFSM;
 
             var moveState = new MoveState(context);
+            var wallState = new WallState(context);
             var slideState = new SlideState(context);
             var jumpState = new JumpState(context);
             var fallState = new FallState(context);
@@ -50,6 +52,9 @@ namespace Game.Player.Movement
             // Register HFSMs
             machine.AddState(LocomotionState.Grounded, groundedFSM);
             machine.AddState(LocomotionState.Airborne, airborneFSM);
+
+            // Wallrunning
+            machine.AddState(LocomotionState.Wall, wallState);
 
             // Add grounded states
             groundedFSM.AddState(GroundedState.Move, moveState);
@@ -75,8 +80,9 @@ namespace Game.Player.Movement
             AirborneStateMachine airFSM,
             PlayerContext context)
         {
+            var toWall = new Trans(context, ctx => !ctx.IsGrounded && ctx.Sensors.WallDetected);
             var toAir = new Trans(context, ctx => !ctx.IsGrounded);
-            var toGround = new Trans(context, ctx => ctx.IsGrounded && !ctx.Input.Jump);
+            var toGround = new Trans(context, ctx => ctx.IsGrounded);
             // ^ prevent instant "snap back" to Grounded on the jump press frame
 
             var jumpToAir = new Trans(context, ctx => ctx.Input.Jump && ctx.IsGrounded);
@@ -86,9 +92,12 @@ namespace Game.Player.Movement
             machine.AddEnterTransition(LocomotionState.Grounded, toGround);
 
             // Any transitions (runtime)
-            machine.AddAnyTransition(LocomotionState.Airborne, jumpToAir); // priority
-            machine.AddAnyTransition(LocomotionState.Airborne, toAir);
-            machine.AddAnyTransition(LocomotionState.Grounded, toGround);
+            machine.AddTransition(LocomotionState.Grounded, LocomotionState.Airborne, jumpToAir); // higher priority than normal ground -> air
+            machine.AddTransition(LocomotionState.Grounded, LocomotionState.Airborne, toAir);
+            machine.AddTransition(LocomotionState.Airborne, LocomotionState.Grounded, toGround);
+
+            // Wallrun transition
+            machine.AddTransition(LocomotionState.Airborne, LocomotionState.Wall, toWall);
         }
 
         private static void CreateGroundedTransitions(GroundedStateMachine machine, PlayerContext context)

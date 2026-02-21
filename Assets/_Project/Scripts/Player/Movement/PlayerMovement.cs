@@ -1,4 +1,5 @@
 using ECM2;
+using UnityEditor;
 using UnityEngine;
 using MovementFSM = Game.Player.Movement.LocomotionStateMachine;
 
@@ -18,10 +19,11 @@ namespace Game.Player.Movement
 
         private CharacterMovement _controller;
 
-        private BodyController _body;
         private PlayerContext _context;
         private PlayerState _state;
         private PlayerInput _input;
+        private BodyController _body;
+        private LocomotionSensors _sensors;
         private MovementFSM _machine;
 
         public PlayerContext Conext => _context;
@@ -56,12 +58,14 @@ namespace Game.Player.Movement
             _state = new PlayerState();
             _input = new PlayerInput();
             _body = new BodyController(_controller, _bodyData);
+            _sensors = new LocomotionSensors(_controller);
 
             _context = new PlayerContext(
                 _movementData, 
                 _controller, 
                 _orientation, 
                 _body,
+                _sensors,
                 _input, 
                 _state
             );
@@ -76,6 +80,7 @@ namespace Game.Player.Movement
 
         private void FixedUpdate()
         {
+            _sensors.Update();
             _machine.Process();
             _controller.Move(_state.Velocity, Time.fixedDeltaTime);
             _state.Velocity = _controller.velocity;
@@ -137,6 +142,7 @@ namespace Game.Player.Movement
         public readonly CharacterMovement Controller;
         public readonly CharacterOrientation Orientation;
         public readonly BodyController Body;
+        public readonly LocomotionSensors Sensors;
         public readonly PlayerInput Input;
         public readonly PlayerState State;
         public bool IsGrounded => Controller.isGrounded;
@@ -149,13 +155,15 @@ namespace Game.Player.Movement
             CharacterMovement controller,
             CharacterOrientation orientaiton,
             BodyController body,
-            PlayerInput input, 
+            LocomotionSensors sensors,
+            PlayerInput input,
             PlayerState state)
         {
             Data = data;
             Controller = controller;
             Orientation = orientaiton;
             Body = body;
+            Sensors = sensors;
             Input = input;
             State = state;
         }

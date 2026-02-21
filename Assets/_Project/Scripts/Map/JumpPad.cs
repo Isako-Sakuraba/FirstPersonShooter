@@ -8,6 +8,8 @@ namespace Game.Environment
         [SerializeField] private Vector3 direction;
         [SerializeField] private float force;
 
+        [SerializeField] private bool overrideVelocity = true;
+
         private void OnDrawGizmosSelected()
         {
             Gizmos.color = Color.red;
@@ -18,7 +20,7 @@ namespace Game.Environment
         {
             if (other.TryGetComponent<CharacterMovement>(out var character))
             {
-                character.LaunchCharacter(direction.normalized * force, true, true);
+                character.LaunchCharacter(direction.normalized * force, overrideVelocity, overrideVelocity);
                 character.PauseGroundConstraint();
             }
         }
