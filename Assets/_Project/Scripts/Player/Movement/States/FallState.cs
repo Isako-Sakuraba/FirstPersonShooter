@@ -6,6 +6,11 @@ namespace Game.Player.Movement.States
     {
         public FallState(PlayerContext context) : base(context) { }
 
+        public override void Enter()
+        {
+            context.State.WallJump = false;
+        }
+
         public override void Process()
         {
             ApplyGravity();

@@ -16,9 +16,9 @@ namespace Game.Player.Movement.States
             _slideDirection = horizontal.normalized;
 
             // ApplY boost
-            if (context.Data.EnterBoost > 0f)
+            if (context.Data.SlideEnterBoost > 0f)
             {
-                horizontal += _slideDirection * context.Data.EnterBoost;
+                horizontal += _slideDirection * context.Data.SlideEnterBoost;
                 context.State.Velocity.x = horizontal.x;
                 context.State.Velocity.z = horizontal.z;
             }
@@ -41,16 +41,16 @@ namespace Game.Player.Movement.States
 
             Vector3 wish = context.WishDir;
 
-            // Steering
+            // SlideSteering
             if (wish != Vector3.zero)
             {
-                float steerFactor = Mathf.InverseLerp(context.Data.SteeringMinSpeed, context.Data.MinEnterSpeed, speed);
+                float steerFactor = Mathf.InverseLerp(context.Data.SlideSteeringMinSpeed, context.Data.MinSlideEnterSpeed, speed);
                 float steerStrength = Mathf.Lerp(0.25f, 1f, steerFactor);
 
                 _slideDirection = Vector3.Slerp(
                     _slideDirection,
                     wish,
-                    1f - Mathf.Exp(-context.Data.Steering * steerStrength * dt)
+                    1f - Mathf.Exp(-context.Data.SlideSteering * steerStrength * dt)
                 );
 
                 _slideDirection.y = 0f;
@@ -58,22 +58,21 @@ namespace Game.Player.Movement.States
                 _slideDirection.Normalize();
             }
 
-            // Friction
-            float frictionFactor = Mathf.Exp(-context.Data.Friction * dt);
+            // SlideFriction
+            float frictionFactor = Mathf.Exp(-context.Data.SlideFriction * dt);
             horizontal *= frictionFactor;
 
             // Downhill accel
-            if (context.Data.DownhillAccel > 0f)
+            if (context.Data.SlideDownhillAcceleration > 0f)
             {
                 Vector3 downhill = Vector3.ProjectOnPlane(Vector3.down, context.Controller.groundNormal);
                 downhill.Normalize();
-                horizontal += downhill * (context.Data.DownhillAccel * dt);
+                horizontal += downhill * (context.Data.SlideDownhillAcceleration * dt);
             }
 
             // Bias velocity to slide dir
-            float alignRate = 10f;
             Vector3 alligned = _slideDirection * horizontal.magnitude;
-            horizontal = Vector3.Lerp(horizontal, alligned, 1f - Mathf.Exp(-alignRate * dt));
+            horizontal = Vector3.Lerp(horizontal, alligned, 1f - Mathf.Exp(-context.Data.SlideAllignRate * dt));
 
             context.State.Velocity.x = horizontal.x;
             context.State.Velocity.z = horizontal.z;

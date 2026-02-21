@@ -6,6 +6,11 @@ namespace Game.Player.Movement.States
     {
         public MoveState(PlayerContext context) : base(context) { }
 
+        public override void Enter()
+        {
+            context.State.WallRunBeginTimer = 0f; // TODO: rewrite, please!!!
+        }
+
         public override void Process()
         {
             GroundMove();

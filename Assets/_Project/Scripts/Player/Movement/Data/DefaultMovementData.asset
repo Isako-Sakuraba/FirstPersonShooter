@@ -23,17 +23,70 @@ MonoBehaviour:
   AirAccelerationSpeedCap: 5
   JumpHeight: 2
   Gravity: -18
-  MinEnterSpeed: 6
+  MinSlideEnterSpeed: 8
   MinSlideSpeed: 3
-  EnterBoost: 2
-  Friction: 1
-  Steering: 2
-  SteeringMinSpeed: 4
-  DownhillAccel: 20
-  MaxSpeed: 20
-  MaxGroundAngle: 55
-  ExitOnReleaseDelay: 0
-  RequireCrouchHeld: 0
+  SlideEnterBoost: 4
+  SlideFriction: 1
+  SlideSteering: 6
+  SlideSteeringMinSpeed: 4
+  SlideDownhillAcceleration: 20
+  SlideAllignRate: 10
+  WallrunDuration: 2.8
+  WallrunAgainTimer: 0.6
+  WallrunGravityCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2.5
+      outSlope: 2.5
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.4
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.5
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.16042764
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: -2
+      outSlope: -2
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  WallrunGravity: -3
+  WallrunStickForce: 40
+  WallrunEnterBoostHeight: 1.6
+  WallrunAlongWallAcceleration: 25
+  WallrunAlongWallMaxSpeed: 12
+  WallrunMaxUpSpeed: 10
+  WallrunMaxDownSpeed: 3
+  WallJumpHeight: 2
+  WallDetachJumpHeight: 1
+  WallJumpForce: 6
+  WallrunMinSpeedToSustain: 4
+  WallrunUpBias: 0
   GroundMask:
     serializedVersion: 2
     m_Bits: 1

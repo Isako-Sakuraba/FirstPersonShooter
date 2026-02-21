@@ -81,6 +81,7 @@ namespace Game.Player.Movement
         private void FixedUpdate()
         {
             _sensors.Update();
+            _state.UpdateTimers(Time.fixedDeltaTime);
             _machine.Process();
             _controller.Move(_state.Velocity, Time.fixedDeltaTime);
             _state.Velocity = _controller.velocity;
@@ -118,6 +119,19 @@ namespace Game.Player.Movement
         public Vector3 Velocity;
         public Stance Stance;
         public bool IsSliding;
+        public bool IsWallrunning;
+        public float WallRunBeginTimer;
+        public bool WallrunBeginTimerDepleted => WallRunBeginTimer <= 0f;
+        public bool WallrunEndTimerEnded;
+        public Vector3 LastWallNormal;
+        public bool WallJump; // To distinct walljumps from normal jumps
+        public float WallJumpCurrentHeight;
+
+
+        public void UpdateTimers(float delta)
+        {
+            WallRunBeginTimer -= Time.deltaTime;
+        }
     }
 
     public class PlayerInput

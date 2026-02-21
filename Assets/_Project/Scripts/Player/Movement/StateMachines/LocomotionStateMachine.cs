@@ -4,6 +4,7 @@ using Game.Player.Movement.States;
 using UnityEngine;
 using Trans = FiniteStateMachine.Common.LambdaTransition<Game.Player.Movement.PlayerContext>;
 using TBundle = FiniteStateMachine.Common.TransitionBundle;
+using System;
 
 namespace Game.Player.Movement
 {
@@ -39,22 +40,23 @@ namespace Game.Player.Movement
         {
             var groundedFSM = new GroundedStateMachine();
             var airborneFSM = new AirborneStateMachine();
+            var wallrunFSM = new WallrunStateMachine();
 
             machine.GFSM = groundedFSM;
             machine.AFSM = airborneFSM;
 
             var moveState = new MoveState(context);
-            var wallState = new WallState(context);
             var slideState = new SlideState(context);
             var jumpState = new JumpState(context);
             var fallState = new FallState(context);
+            var wallRunState = new WallRunState(context);
+            var wallJumpState = new WallJumpState(context);
 
             // Register HFSMs
             machine.AddState(LocomotionState.Grounded, groundedFSM);
             machine.AddState(LocomotionState.Airborne, airborneFSM);
+            machine.AddState(LocomotionState.Wall, wallrunFSM);
 
-            // Wallrunning
-            machine.AddState(LocomotionState.Wall, wallState);
 
             // Add grounded states
             groundedFSM.AddState(GroundedState.Move, moveState);
@@ -66,10 +68,16 @@ namespace Game.Player.Movement
             airborneFSM.AddState(AirborneState.Fall, fallState);
             airborneFSM.Run(AirborneState.Fall);
 
+            // Add wallrun states
+            wallrunFSM.AddState(WallState.Run, wallRunState);
+            wallrunFSM.AddState(WallState.Jump, wallJumpState);
+            wallrunFSM.Run(WallState.Run);
+
 
             CreateRootTransitions(machine, groundedFSM, airborneFSM, context);
             CreateGroundedTransitions(groundedFSM, context);
             CreateAirborneTransitions(airborneFSM, context);
+            CreateWallrunTransitions(wallrunFSM, context);
 
             machine.Run(LocomotionState.Airborne);
         }
@@ -80,10 +88,19 @@ namespace Game.Player.Movement
             AirborneStateMachine airFSM,
             PlayerContext context)
         {
-            var toWall = new Trans(context, ctx => !ctx.IsGrounded && ctx.Sensors.WallDetected);
+            var toWall = new Trans(context, ctx =>
+            {
+                bool sameWallCondition = true;
+                if (ctx.State.LastWallNormal == ctx.Sensors.WallCollision.normal)
+                    sameWallCondition = ctx.State.WallrunBeginTimerDepleted;
+
+                return !ctx.IsGrounded && ctx.Sensors.WallDetected && sameWallCondition;
+            });
             var toAir = new Trans(context, ctx => !ctx.IsGrounded);
             var toGround = new Trans(context, ctx => ctx.IsGrounded);
-            // ^ prevent instant "snap back" to Grounded on the jump press frame
+
+
+            var toAirFromWall = new Trans(context, ctx => !ctx.IsGrounded && !ctx.Sensors.WallDetected);
 
             var jumpToAir = new Trans(context, ctx => ctx.Input.Jump && ctx.IsGrounded);
 
@@ -98,6 +115,8 @@ namespace Game.Player.Movement
 
             // Wallrun transition
             machine.AddTransition(LocomotionState.Airborne, LocomotionState.Wall, toWall);
+            machine.AddTransition(LocomotionState.Wall, LocomotionState.Grounded, toGround);
+            machine.AddTransition(LocomotionState.Wall, LocomotionState.Airborne, toAirFromWall);
         }
 
         private static void CreateGroundedTransitions(GroundedStateMachine machine, PlayerContext context)
@@ -113,7 +132,7 @@ namespace Game.Player.Movement
             var toSlide = new Trans(context, ctx =>
                 ctx.IsGrounded &&
                 ctx.Input.Crouch &&                              // edge-triggered
-                HorizontalSpeed(ctx) >= ctx.Data.MinEnterSpeed
+                HorizontalSpeed(ctx) >= ctx.Data.MinSlideEnterSpeed
             );
 
             // Slide -> Move
@@ -149,10 +168,11 @@ namespace Game.Player.Movement
             var fromJump = new Trans(context,
                 (ctx) =>
                 {
-                    return ctx.Input.Jump;
+                    return ctx.Input.Jump && !ctx.State.WallJump;
                 });
 
-            var notFromJump = new ReverseTransition(fromJump);
+
+            var notFromJump = new Trans(context, ctx => !ctx.Input.Jump);
 
 
             machine.AddEnterTransition(AirborneState.Fall, notFromJump);
@@ -161,6 +181,21 @@ namespace Game.Player.Movement
             var trueTransition = new LambdaTransition(() => true);
 
             machine.AddTransition(AirborneState.Jump, AirborneState.Fall, trueTransition);
+        }
+
+        private static void CreateWallrunTransitions(WallrunStateMachine machine, PlayerContext context)
+        {
+            var fromJump = new Trans(context,
+            (ctx) =>
+            {
+                return ctx.Input.Jump;
+            });
+
+            var wallRunTimerEnded = new Trans(context, ctx => ctx.State.WallrunEndTimerEnded);
+
+
+            machine.AddTransition(WallState.Run, WallState.Jump, fromJump);
+            machine.AddTransition(WallState.Run, WallState.Jump, wallRunTimerEnded);
         }
     }
 }
