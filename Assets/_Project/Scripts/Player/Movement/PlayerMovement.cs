@@ -1,6 +1,6 @@
 using ECM2;
-using UnityEditor;
 using UnityEngine;
+using ImprovedTimers;
 using MovementFSM = Game.Player.Movement.LocomotionStateMachine;
 
 namespace Game.Player.Movement
@@ -38,7 +38,7 @@ namespace Game.Player.Movement
             GUILayout.Label($"Grounded: {_context.IsGrounded}");
             GUILayout.Label($"Stance: {_body.Stance}");
             GUILayout.Label($"Jumps left: {_state.JumpsLeft}");
-            GUILayout.Label($"JB: {_state.CoyoteTimer} | CT: {_state.JumpBufferTimer}");
+            GUILayout.Label($"JB: {_input.JumpBufferTimer.CurrentTime} | CT: {_state.CoyoteTimer.CurrentTime} | WBT: {!_state.WallrunBeginTimer.IsRunning}/{_state.WallrunBeginTimer.CurrentTime}");
             GUILayout.Label($"Input: [Move {_input.Move}] [Jump: {_input.Jump}] [Crouch: {_input.Crouch}]");
             GUILayout.Label($"Velocity Vector: {_context.State.Velocity}");
 
@@ -86,7 +86,6 @@ namespace Game.Player.Movement
             float dt = Time.fixedDeltaTime;
 
             _sensors.Update();
-            _state.UpdateTimers(dt);
             _body.Update(_input.Crouch ? Stance.Crouched : Stance.Standing);
             _machine.Process();
             _controller.Move(_state.Velocity, dt);
@@ -130,26 +129,17 @@ namespace Game.Player.Movement
         public bool IsWallrunning;
 
         // Wallrun data
-        public float WallRunBeginTimer;
-        public bool WallrunBeginTimerDepleted => WallRunBeginTimer <= 0f;
-        public bool WallrunEndTimerEnded;
         public Vector3 LastWallNormal;
         public bool WallJump; // To distinct walljumps from normal jumps
         public float WallJumpCurrentHeight;
+        public CountdownTimer WallrunBeginTimer;
+        public CountdownTimer WallrunEndTimer;
 
         // Jump timers
-        public float JumpBufferTimer;
-        public float CoyoteTimer;
+        public CountdownTimer CoyoteTimer;
 
         // Jump amount
         public int JumpsLeft;
-
-        public void UpdateTimers(float delta)
-        {
-            WallRunBeginTimer -= delta;
-            JumpBufferTimer -= delta;
-            CoyoteTimer -= delta;
-        }
     }
 
     public class PlayerInput
@@ -159,12 +149,22 @@ namespace Game.Player.Movement
         public bool Sprint;
         public bool Crouch;
 
+        public CountdownTimer JumpBufferTimer = new(0.2f);
+
         public void Update()
         {
             Move = InputService.Instance.Move;
             Jump = InputService.Instance.Jump;
             Sprint = InputService.Instance.Sprint;
             Crouch = InputService.Instance.Crouch;
+
+            if (Jump)
+                JumpBufferTimer.Start();
+        }
+
+        public void ConsumeJumpBuffer()
+        {
+            JumpBufferTimer.Cancel();
         }
     }
 
@@ -198,6 +198,13 @@ namespace Game.Player.Movement
             Sensors = sensors;
             Input = input;
             State = state;
+            
+            // Init timers
+            State.WallrunBeginTimer = new CountdownTimer(Data.WallrunAgainTimer);
+            State.WallrunEndTimer = new CountdownTimer(Data.WallrunDuration);
+            State.CoyoteTimer = new CountdownTimer(Data.CoyoteTime);
+
+            State.CoyoteTimer.OnTimerFinished += () => State.JumpsLeft--;
         }
 
         public void Update()
@@ -205,10 +212,6 @@ namespace Game.Player.Movement
             // TODO: move from here?
             _wishDir = Orientation.Forward * Input.Move.y + Orientation.Right * Input.Move.x;
             _wishDir = Vector3.ClampMagnitude(_wishDir, 1f);
-
-            // TODO: if you won't remove it from here I'll kill you
-            if (Input.Jump)
-                State.JumpBufferTimer = Data.JumpBuffer;
         }
     }
 }

@@ -41,8 +41,6 @@ namespace Game.Player.Experimental
                 // We want the wall side, not normal direction. If your normal convention differs, flip the sign.
                 // Lean into wall: wall on right -> roll right. A simple way is invert side.
                 float leanSign = -Mathf.Sign(side);
-                Debug.Log(leanSign);
-
 
                 // Optionally scale by speed so tiny contacts don't tilt
                 Vector3 v = ctx.State.Velocity;

@@ -21,6 +21,7 @@ namespace Game.Player.Movement.States
             context.State.IsWallrunning = true;
             context.State.LastWallNormal = context.Sensors.WallCollision.normal;
             context.State.JumpsLeft = context.Data.JumpAmount;
+            context.State.WallrunEndTimer.Start();
             _wallNormal = context.Sensors.WallCollision.normal;
 
             context.State.Velocity.y = Mathf.Sqrt(context.Data.WallrunEnterBoostHeight * context.Data.WallrunGravity * -2f);
@@ -30,15 +31,12 @@ namespace Game.Player.Movement.States
         {
             _wallrunTimer = context.Data.WallrunDuration;
             context.State.IsWallrunning = false;
-            context.State.WallRunBeginTimer = context.Data.WallrunAgainTimer;
-            context.State.WallrunEndTimerEnded = false;
+            context.State.WallrunBeginTimer.Start();
 
         }
 
         public override void Process()
         {
-            _wallrunTimer -= Time.fixedDeltaTime;
-            context.State.WallrunEndTimerEnded = WallRunTimerEnded;
             context.State.LastWallNormal = _wallNormal;
 
             float dt = Time.fixedDeltaTime;

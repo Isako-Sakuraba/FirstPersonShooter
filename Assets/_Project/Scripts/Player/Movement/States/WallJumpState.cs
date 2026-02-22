@@ -13,6 +13,9 @@ namespace Game.Player.Movement.States
             context.State.Velocity += context.State.LastWallNormal * context.Data.WallJumpForce;
             context.State.WallJump = true;
             context.State.JumpsLeft--;
+
+            context.Input.ConsumeJumpBuffer();
+            context.State.CoyoteTimer.Cancel();
         }
     }
 }

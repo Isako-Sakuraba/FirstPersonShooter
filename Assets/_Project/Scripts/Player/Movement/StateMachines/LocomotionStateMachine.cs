@@ -3,6 +3,7 @@ using FiniteStateMachine.Core;
 using Game.Player.Movement.States;
 using UnityEngine;
 using Trans = FiniteStateMachine.Common.LambdaTransition<Game.Player.Movement.PlayerContext>;
+using ActionTrans = FiniteStateMachine.Common.LambdaActionTransition<Game.Player.Movement.PlayerContext>;
 using TBundle = FiniteStateMachine.Common.TransitionBundle;
 using System;
 
@@ -92,7 +93,7 @@ namespace Game.Player.Movement
             {
                 bool sameWallCondition = true;
                 if (ctx.State.LastWallNormal == ctx.Sensors.WallCollision.normal)
-                    sameWallCondition = ctx.State.WallrunBeginTimerDepleted;
+                    sameWallCondition = !ctx.State.WallrunBeginTimer.IsRunning;
 
                 return !ctx.IsGrounded && ctx.Sensors.WallDetected && sameWallCondition;
             });
@@ -102,7 +103,7 @@ namespace Game.Player.Movement
 
             var toAirFromWall = new Trans(context, ctx => !ctx.IsGrounded && !ctx.Sensors.WallDetected);
 
-            var jumpToAir = new Trans(context, ctx => ctx.State.JumpBufferTimer > 0f && ctx.State.JumpsLeft > 0 && ctx.IsGrounded);
+            var jumpToAir = new Trans(context, ctx => ctx.Input.JumpBufferTimer.IsRunning && ctx.State.JumpsLeft > 0 && ctx.IsGrounded);
 
             // Enter transitions (initial selection)
             machine.AddEnterTransition(LocomotionState.Airborne, toAir);
@@ -168,14 +169,18 @@ namespace Game.Player.Movement
             var fromJump = new Trans(context,
                 (ctx) =>
                 {
-                    return ctx.State.JumpBufferTimer > 0f && !ctx.State.WallJump;
+                    return ctx.Input.JumpBufferTimer.IsRunning && !ctx.State.WallJump;
                 });
 
 
-            var notFromJump = new Trans(context, ctx => !ctx.Input.Jump);
+
+            var notFromJump = new Trans(context, ctx => !ctx.Input.Jump && !ctx.State.WallJump);
+
+            // COYOTE TIME IS HERE
+            var coyoteTimeStartWrapper = new ActionTrans(notFromJump, context, ctx => ctx.State.CoyoteTimer.Start());
 
 
-            machine.AddEnterTransition(AirborneState.Fall, notFromJump);
+            machine.AddEnterTransition(AirborneState.Fall, coyoteTimeStartWrapper);
             machine.AddEnterTransition(AirborneState.Jump, fromJump);
 
             var trueTransition = new LambdaTransition(() => true);
@@ -184,7 +189,7 @@ namespace Game.Player.Movement
             // TODO: account for coyote time, decrease jump count when elapsed
             var coyoteJump = new Trans(context, ctx =>
             {
-                return ctx.State.JumpBufferTimer > 0f && ctx.State.JumpsLeft > 0;
+                return ctx.Input.JumpBufferTimer.IsRunning && ctx.State.JumpsLeft > 0;
             });
 
             machine.AddTransition(AirborneState.Jump, AirborneState.Fall, trueTransition);
@@ -196,10 +201,10 @@ namespace Game.Player.Movement
             var fromJump = new Trans(context,
             (ctx) =>
             {
-                return ctx.State.JumpBufferTimer > 0f && ctx.State.JumpsLeft > 0;
+                return ctx.Input.JumpBufferTimer.IsRunning && ctx.State.JumpsLeft > 0;
             });
 
-            var wallRunTimerEnded = new Trans(context, ctx => ctx.State.WallrunEndTimerEnded);
+            var wallRunTimerEnded = new Trans(context, ctx => ctx.State.WallrunEndTimer.IsFinished);
 
 
             machine.AddTransition(WallState.Run, WallState.Jump, fromJump);

@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.gitamend.improvedtimers": {
+      "version": "https://github.com/Isako-Sakuraba/Unity-Advanced-Timers.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "6c583cf43321e709f1a787ad8ce7a754c955ab92"
+    },
     "com.kyrylokuzyk.primetween": {
       "version": "file:../Assets/Plugins/PrimeTween/internal/com.kyrylokuzyk.primetween.tgz",
       "depth": 0,

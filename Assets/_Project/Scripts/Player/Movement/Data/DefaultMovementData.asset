@@ -24,7 +24,7 @@ MonoBehaviour:
   JumpHeight: 2
   JumpBuffer: 0.1
   CoyoteTime: 0.25
-  JumpAmount: 3
+  JumpAmount: 1
   Gravity: -18
   MinSlideEnterSpeed: 8
   MinSlideSpeed: 5
@@ -35,7 +35,7 @@ MonoBehaviour:
   SlideDownhillAcceleration: 20
   SlideAllignRate: 10
   WallrunDuration: 2.8
-  WallrunAgainTimer: 0.6
+  WallrunAgainTimer: 1
   WallrunGravityCurve:
     serializedVersion: 2
     m_Curve:

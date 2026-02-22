@@ -8,7 +8,8 @@ namespace Game.Player.Movement.States
 
         public override void Enter()
         {
-            context.State.WallRunBeginTimer = 0f; // TODO: rewrite, please!!!
+            context.State.WallrunBeginTimer.Finish();
+            context.State.CoyoteTimer.Cancel();
             context.State.JumpsLeft = context.Data.JumpAmount;
         }
 
