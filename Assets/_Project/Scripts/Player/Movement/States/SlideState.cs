@@ -1,3 +1,4 @@
+using System.Transactions;
 using UnityEngine;
 
 namespace Game.Player.Movement.States
@@ -11,9 +12,13 @@ namespace Game.Player.Movement.States
         public override void Enter()
         {
             Vector3 v = context.State.Velocity;
+            float previousSpeed = context.State.PreviousVelocity.magnitude;
             Vector3 horizontal = new Vector3(v.x, 0f, v.z);
 
-            _slideDirection = horizontal.normalized;
+            horizontal.Normalize();
+            _slideDirection = horizontal;
+            horizontal *= previousSpeed;
+            
 
             // ApplY boost
             if (context.Data.SlideEnterBoost > 0f)

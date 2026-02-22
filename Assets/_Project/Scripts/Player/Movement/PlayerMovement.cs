@@ -87,9 +87,11 @@ namespace Game.Player.Movement
 
             _sensors.Update();
             _body.Update(_input.Crouch ? Stance.Crouched : Stance.Standing);
+            var velocity = _state.Velocity;
             _machine.Process();
             _controller.Move(_state.Velocity, dt);
             _state.Velocity = _controller.velocity;
+            _state.PreviousVelocity = velocity;
         }
 
         public static Vector3 Accelerate(Vector3 velocity, Vector3 wishDir, float wishSpeed, float accel, float deltaTime)
@@ -122,6 +124,7 @@ namespace Game.Player.Movement
     public class PlayerState
     {
         public Vector3 Velocity;
+        public Vector3 PreviousVelocity;
         public Stance Stance;
 
         // Just flags, modified from states, only for getting current state
