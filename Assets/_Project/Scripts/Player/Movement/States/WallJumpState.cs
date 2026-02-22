@@ -12,6 +12,7 @@ namespace Game.Player.Movement.States
             context.State.Velocity.y = Mathf.Sqrt(height * context.Data.Gravity * -2f);
             context.State.Velocity += context.State.LastWallNormal * context.Data.WallJumpForce;
             context.State.WallJump = true;
+            context.State.JumpsLeft--;
         }
     }
 }

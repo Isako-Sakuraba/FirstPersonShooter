@@ -37,6 +37,8 @@ namespace Game.Player.Movement
             GUILayout.Label($"Movement State: {_machine.GetFullPath()}");
             GUILayout.Label($"Grounded: {_context.IsGrounded}");
             GUILayout.Label($"Stance: {_body.Stance}");
+            GUILayout.Label($"Jumps left: {_state.JumpsLeft}");
+            GUILayout.Label($"JB: {_state.CoyoteTimer} | CT: {_state.JumpBufferTimer}");
             GUILayout.Label($"Input: [Move {_input.Move}] [Jump: {_input.Jump}] [Crouch: {_input.Crouch}]");
             GUILayout.Label($"Velocity Vector: {_context.State.Velocity}");
 
@@ -138,6 +140,9 @@ namespace Game.Player.Movement
         // Jump timers
         public float JumpBufferTimer;
         public float CoyoteTimer;
+
+        // Jump amount
+        public int JumpsLeft;
 
         public void UpdateTimers(float delta)
         {

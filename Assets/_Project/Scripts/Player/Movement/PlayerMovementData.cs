@@ -23,6 +23,7 @@ namespace Game.Player.Movement
         public float JumpHeight = 2f;
         public float JumpBuffer = 0.1f;
         public float CoyoteTime = 0.1f;
+        public int JumpAmount = 1;
 
         [Header("Gravity settings")]
         public float Gravity = -10f;

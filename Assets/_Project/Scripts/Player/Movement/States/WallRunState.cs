@@ -20,6 +20,7 @@ namespace Game.Player.Movement.States
         {
             context.State.IsWallrunning = true;
             context.State.LastWallNormal = context.Sensors.WallCollision.normal;
+            context.State.JumpsLeft = context.Data.JumpAmount;
             _wallNormal = context.Sensors.WallCollision.normal;
 
             context.State.Velocity.y = Mathf.Sqrt(context.Data.WallrunEnterBoostHeight * context.Data.WallrunGravity * -2f);

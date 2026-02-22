@@ -102,7 +102,7 @@ namespace Game.Player.Movement
 
             var toAirFromWall = new Trans(context, ctx => !ctx.IsGrounded && !ctx.Sensors.WallDetected);
 
-            var jumpToAir = new Trans(context, ctx => ctx.State.JumpBufferTimer > 0f && ctx.IsGrounded);
+            var jumpToAir = new Trans(context, ctx => ctx.State.JumpBufferTimer > 0f && ctx.State.JumpsLeft > 0 && ctx.IsGrounded);
 
             // Enter transitions (initial selection)
             machine.AddEnterTransition(LocomotionState.Airborne, toAir);
@@ -180,9 +180,11 @@ namespace Game.Player.Movement
 
             var trueTransition = new LambdaTransition(() => true);
 
+            // Does not accout for coyote time
+            // TODO: account for coyote time, decrease jump count when elapsed
             var coyoteJump = new Trans(context, ctx =>
             {
-                return ctx.State.JumpBufferTimer > 0f && ctx.State.CoyoteTimer > 0f;
+                return ctx.State.JumpBufferTimer > 0f && ctx.State.JumpsLeft > 0;
             });
 
             machine.AddTransition(AirborneState.Jump, AirborneState.Fall, trueTransition);
@@ -194,7 +196,7 @@ namespace Game.Player.Movement
             var fromJump = new Trans(context,
             (ctx) =>
             {
-                return ctx.State.JumpBufferTimer > 0f;
+                return ctx.State.JumpBufferTimer > 0f && ctx.State.JumpsLeft > 0;
             });
 
             var wallRunTimerEnded = new Trans(context, ctx => ctx.State.WallrunEndTimerEnded);

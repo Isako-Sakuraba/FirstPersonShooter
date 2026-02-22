@@ -11,6 +11,7 @@ namespace Game.Player.Movement.States
             context.State.Velocity.y = Mathf.Sqrt(context.Data.JumpHeight * context.Data.Gravity * -2f);
             context.Controller.PauseGroundConstraint();
             context.State.JumpBufferTimer = 0f;
+            context.State.JumpsLeft--;
         }
 
         public override void Process()
