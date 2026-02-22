@@ -74,7 +74,7 @@ namespace Game.Player.Movement.States
                 velocity += Vector3.up * (context.Data.WallrunUpBias * dt);
 
             // Clamp vertical speed
-            // velocity.y = Mathf.Clamp(velocity.y, -context.Data.WallrunMaxDownSpeed, context.Data.WallrunMaxUpSpeed);
+            velocity.y = Mathf.Clamp(velocity.y, -context.Data.WallrunMaxDownSpeed, context.Data.WallrunMaxUpSpeed);
 
             //// Remove all non-wall velocity
             //velocity = Vector3.ProjectOnPlane(velocity, _wallNormal);
