@@ -44,7 +44,7 @@ public class InputService : MonoBehaviour
     private void Update()
     {
         _move = _moveAction.action.ReadValue<Vector2>();
-        _jump = _jumpAction.action.ReadValue<float>() > 0.1f;
+        _jump = _jumpAction.action.triggered;
         _mouseDelta = _mouseDeltaAction.action.ReadValue<Vector2>();
         _sprint = _sprintAction.action.ReadValue<float>() > 0.1f;
         _crouch = _crouchAction.action.ReadValue<float>() > 0.1f;

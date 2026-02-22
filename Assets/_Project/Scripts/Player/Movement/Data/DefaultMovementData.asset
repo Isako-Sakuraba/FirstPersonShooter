@@ -22,6 +22,8 @@ MonoBehaviour:
   AirAcceleration: 6
   AirAccelerationSpeedCap: 5
   JumpHeight: 2
+  JumpBuffer: 0.1
+  CoyoteTime: 0.25
   Gravity: -18
   MinSlideEnterSpeed: 8
   MinSlideSpeed: 5
@@ -76,7 +78,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   WallrunGravity: -3
-  WallrunStickForce: 40
+  WallrunStickForce: 60
   WallrunEnterBoostHeight: 1.6
   WallrunAlongWallAcceleration: 25
   WallrunAlongWallMaxSpeed: 12

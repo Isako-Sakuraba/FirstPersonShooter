@@ -9,6 +9,8 @@ namespace Game.Player.Movement.States
         public override void Enter()
         {
             context.State.WallJump = false;
+            context.State.JumpBufferTimer = 0f;
+            context.State.CoyoteTimer = context.Data.CoyoteTime;
         }
 
         public override void Process()

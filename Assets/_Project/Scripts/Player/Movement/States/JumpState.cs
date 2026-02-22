@@ -8,8 +8,9 @@ namespace Game.Player.Movement.States
 
         public override void Enter()
         {
-            context.State.Velocity.y += Mathf.Sqrt(context.Data.JumpHeight * context.Data.Gravity * -2f);
+            context.State.Velocity.y = Mathf.Sqrt(context.Data.JumpHeight * context.Data.Gravity * -2f);
             context.Controller.PauseGroundConstraint();
+            context.State.JumpBufferTimer = 0f;
         }
 
         public override void Process()

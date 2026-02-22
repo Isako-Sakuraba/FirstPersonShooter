@@ -75,15 +75,19 @@ namespace Game.Player.Movement
 
         private void Update()
         {
-            _context.Update();
+            _input.Update();
+            _context.Update(); // WishDir recalculations
         }
 
         private void FixedUpdate()
         {
+            float dt = Time.fixedDeltaTime;
+
             _sensors.Update();
-            _state.UpdateTimers(Time.fixedDeltaTime);
+            _state.UpdateTimers(dt);
+            _body.Update(_input.Crouch ? Stance.Crouched : Stance.Standing);
             _machine.Process();
-            _controller.Move(_state.Velocity, Time.fixedDeltaTime);
+            _controller.Move(_state.Velocity, dt);
             _state.Velocity = _controller.velocity;
         }
 
@@ -118,8 +122,12 @@ namespace Game.Player.Movement
     {
         public Vector3 Velocity;
         public Stance Stance;
+
+        // Just flags, modified from states, only for getting current state
         public bool IsSliding;
         public bool IsWallrunning;
+
+        // Wallrun data
         public float WallRunBeginTimer;
         public bool WallrunBeginTimerDepleted => WallRunBeginTimer <= 0f;
         public bool WallrunEndTimerEnded;
@@ -127,10 +135,15 @@ namespace Game.Player.Movement
         public bool WallJump; // To distinct walljumps from normal jumps
         public float WallJumpCurrentHeight;
 
+        // Jump timers
+        public float JumpBufferTimer;
+        public float CoyoteTimer;
 
         public void UpdateTimers(float delta)
         {
-            WallRunBeginTimer -= Time.deltaTime;
+            WallRunBeginTimer -= delta;
+            JumpBufferTimer -= delta;
+            CoyoteTimer -= delta;
         }
     }
 
@@ -184,11 +197,13 @@ namespace Game.Player.Movement
 
         public void Update()
         {
-            Input.Update();
+            // TODO: move from here?
             _wishDir = Orientation.Forward * Input.Move.y + Orientation.Right * Input.Move.x;
             _wishDir = Vector3.ClampMagnitude(_wishDir, 1f);
 
-            Body.Update(Input.Crouch ? Stance.Crouched : Stance.Standing);
+            // TODO: if you won't remove it from here I'll kill you
+            if (Input.Jump)
+                State.JumpBufferTimer = Data.JumpBuffer;
         }
     }
 }

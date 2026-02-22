@@ -21,6 +21,8 @@ namespace Game.Player.Movement
 
         [Header("Jump settings")]
         public float JumpHeight = 2f;
+        public float JumpBuffer = 0.1f;
+        public float CoyoteTime = 0.1f;
 
         [Header("Gravity settings")]
         public float Gravity = -10f;
