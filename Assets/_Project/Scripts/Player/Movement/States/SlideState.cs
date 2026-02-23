@@ -1,4 +1,3 @@
-using System.Transactions;
 using UnityEngine;
 
 namespace Game.Player.Movement.States
@@ -20,7 +19,7 @@ namespace Game.Player.Movement.States
             horizontal *= previousSpeed;
             
 
-            // ApplY boost
+            // Apply boost
             if (context.Data.SlideEnterBoost > 0f)
             {
                 horizontal += _slideDirection * context.Data.SlideEnterBoost;
