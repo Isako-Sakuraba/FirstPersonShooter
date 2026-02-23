@@ -1,14 +1,17 @@
 {
   "dependencies": {
-    "com.isako.spline-collider": {
-      "version": "https://github.com/Isako-Sakuraba/Unity-Spline-Collider.git",
+    "com.gitamend.improvedtimers": {
+      "version": "https://github.com/Isako-Sakuraba/Unity-Advanced-Timers.git",
       "depth": 0,
       "source": "git",
-      "dependencies": {
-        "com.unity.splines": "2.4.0",
-        "com.unity.mathematics": "1.2.0"
-      },
-      "hash": "31f24f0832c84a94d05af7f1e42d360cc87dd621"
+      "dependencies": {},
+      "hash": "6c583cf43321e709f1a787ad8ce7a754c955ab92"
+    },
+    "com.kyrylokuzyk.primetween": {
+      "version": "file:../Assets/Plugins/PrimeTween/internal/com.kyrylokuzyk.primetween.tgz",
+      "depth": 0,
+      "source": "local-tarball",
+      "dependencies": {}
     },
     "com.unity.ai.navigation": {
       "version": "2.0.10",
