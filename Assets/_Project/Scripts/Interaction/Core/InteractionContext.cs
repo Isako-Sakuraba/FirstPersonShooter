@@ -4,18 +4,20 @@ namespace Game.Interaction
 {
     public readonly struct InteractionContext
     {
-        public readonly Vector3 Interactor;
+        public readonly GameObject Interactor;
+        public readonly Vector3 Position;
         public readonly Vector3 Forward;
         public readonly bool IsDirect   ;
 
-        public InteractionContext(Vector3 interactor, Vector3 forward, bool direct)
+        public InteractionContext(GameObject interactor, Vector3 position, Vector3 forward, bool direct)
         {
             Interactor = interactor;
+            Position = position;
             Forward = forward;
             IsDirect = direct;
         }
 
         public InteractionContext WithDirect(bool direct)
-            => new InteractionContext(this.Interactor, this.Forward, true);
+            => new InteractionContext(this.Interactor, this.Position, this.Forward, true);
     }
 }

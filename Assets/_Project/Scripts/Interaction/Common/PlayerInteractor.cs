@@ -54,7 +54,7 @@ namespace Game.Player.Interaction
         {
             IInteractable nextFocused = null;
 
-            InteractionContext context = new InteractionContext(_interactorForward.position, _interactorForward.forward, false);
+            InteractionContext context = new InteractionContext(gameObject, _interactorForward.position, _interactorForward.forward, false);
             InteractionContext directContext = context.WithDirect(true);
 
             if (Physics.Raycast(_interactorForward.position, _interactorForward.forward, out var hit, _interactionDistance, _interactionLayer))
@@ -114,7 +114,7 @@ namespace Game.Player.Interaction
                 var info = display.GetInteractionPointDisplay(actualContext);
                 var point = info.position;
                 var text = info.text;
-                _interactionPrompt.transform.position = point;
+                _interactionPrompt.transform.position = Vector3.Lerp(_interactionPrompt.transform.position, point, 12f * Time.deltaTime);
                 _interactionPrompt.SetText(text);
                 _interactionPrompt.gameObject.SetActive(true);
             }
@@ -144,7 +144,7 @@ namespace Game.Player.Interaction
 
         private void OnInteract()
         {
-            InteractionContext context = new InteractionContext(_interactorForward.position, _interactorForward.forward, _directlyFocused);
+            InteractionContext context = new InteractionContext(gameObject, _interactorForward.position, _interactorForward.forward, _directlyFocused);
             if (_focused != null)
                 _focused.Interact(context);
         }
