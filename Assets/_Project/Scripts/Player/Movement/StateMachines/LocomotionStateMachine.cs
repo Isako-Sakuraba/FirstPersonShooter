@@ -13,7 +13,8 @@ namespace Game.Player.Movement
     {
         Grounded,
         Airborne,
-        Wall
+        Wall,
+        Rail
     }
 
     public class LocomotionStateMachine : StateMachine<LocomotionState> 
@@ -52,12 +53,13 @@ namespace Game.Player.Movement
             var fallState = new FallState(context);
             var wallRunState = new WallRunState(context);
             var wallJumpState = new WallJumpState(context);
+            var railState = new RailgrindState(context);
 
             // Register HFSMs
             machine.AddState(LocomotionState.Grounded, groundedFSM);
             machine.AddState(LocomotionState.Airborne, airborneFSM);
             machine.AddState(LocomotionState.Wall, wallrunFSM);
-
+            machine.AddState(LocomotionState.Rail, railState);
 
             // Add grounded states
             groundedFSM.AddState(GroundedState.Move, moveState);
@@ -118,6 +120,14 @@ namespace Game.Player.Movement
             machine.AddTransition(LocomotionState.Airborne, LocomotionState.Wall, toWall);
             machine.AddTransition(LocomotionState.Wall, LocomotionState.Grounded, toGround);
             machine.AddTransition(LocomotionState.Wall, LocomotionState.Airborne, toAirFromWall);
+
+            var toRail = new Trans(context, ctx => ctx.State.IsAttached);
+            var fromRailToJump = new Trans(context, ctx => ctx.Input.JumpBufferTimer.IsRunning);
+            var fromRailEnded = new Trans(context, ctx => ctx.State.CurrentT == 1f || ctx.State.CurrentT == 0f);
+
+            machine.AddTransition(LocomotionState.Rail, LocomotionState.Airborne, fromRailEnded);
+            machine.AddAnyTransition(LocomotionState.Rail, toRail);
+            machine.AddTransition(LocomotionState.Rail, LocomotionState.Airborne, fromRailToJump);
         }
 
         private static void CreateGroundedTransitions(GroundedStateMachine machine, PlayerContext context)

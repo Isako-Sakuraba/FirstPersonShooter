@@ -1,3 +1,4 @@
+using Game.Player.Movement;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Splines;
@@ -7,6 +8,8 @@ namespace Game.Interaction
     public class SplineInteractable : MonoBehaviour, IInteractable, IInteractionDisplay
     {
         private SplineContainer _splineContainer;
+        private EntityId _playerId;
+        private PlayerContext _context;
 
         public IInteractable Interactable => this;
 
@@ -17,7 +20,10 @@ namespace Game.Interaction
 
         public bool CanInteract(in InteractionContext context)
         {
-            return true;
+            if(_context == null)
+                return true;
+
+            return !_context.State.IsAttached;
         }
 
         public Vector3 GetInteractionPoint(in InteractionContext context)
@@ -44,7 +50,25 @@ namespace Game.Interaction
 
         public void Interact(in InteractionContext context)
         {
+            // TODO: remove this monstrocity
+            var movement = context.Interactor.GetComponentInChildren<PlayerMovement>();
+            if (movement == null)
+                return;
 
+            _playerId = context.Interactor.GetEntityId();
+            _context = movement.Conext;
+
+            var state = movement.Conext.State;
+
+            if (!state.IsAttached)
+                Attach(movement.Conext);
+                
+        }
+
+        public void Attach(PlayerContext context)
+        {
+            context.State.IsAttached = true;
+            context.State.RailSplineContainer = _splineContainer;
         }
     }
 }

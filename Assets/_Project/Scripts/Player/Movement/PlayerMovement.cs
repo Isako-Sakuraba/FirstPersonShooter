@@ -2,6 +2,7 @@ using ECM2;
 using UnityEngine;
 using ImprovedTimers;
 using MovementFSM = Game.Player.Movement.LocomotionStateMachine;
+using UnityEngine.Splines;
 
 namespace Game.Player.Movement
 {
@@ -140,6 +141,11 @@ namespace Game.Player.Movement
 
         // Jump timers
         public CountdownTimer CoyoteTimer;
+
+        // Railgrinding
+        public bool IsAttached;
+        public SplineContainer RailSplineContainer;
+        public float CurrentT;
 
         // Jump amount
         public int JumpsLeft;
