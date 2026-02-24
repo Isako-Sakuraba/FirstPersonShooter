@@ -1,7 +1,6 @@
 {
   "dependencies": {
     "com.gitamend.improvedtimers": "https://github.com/Isako-Sakuraba/Unity-Advanced-Timers.git",
-    "com.isako.spline-collider": "https://github.com/Isako-Sakuraba/Unity-Spline-Collider.git",
     "com.kyrylokuzyk.primetween": "file:../Assets/Plugins/PrimeTween/internal/com.kyrylokuzyk.primetween.tgz",
     "com.unity.ai.navigation": "2.0.10",
     "com.unity.collab-proxy": "2.11.3",
