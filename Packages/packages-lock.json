@@ -7,6 +7,16 @@
       "dependencies": {},
       "hash": "6c583cf43321e709f1a787ad8ce7a754c955ab92"
     },
+    "com.isako.spline-collider": {
+      "version": "https://github.com/Isako-Sakuraba/Unity-Spline-Collider.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.splines": "2.4.0",
+        "com.unity.mathematics": "1.2.0"
+      },
+      "hash": "3c45f2522771a792e669aa326f074c9c9b2874c8"
+    },
     "com.kyrylokuzyk.primetween": {
       "version": "file:../Assets/Plugins/PrimeTween/internal/com.kyrylokuzyk.primetween.tgz",
       "depth": 0,
