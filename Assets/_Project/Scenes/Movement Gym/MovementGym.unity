@@ -2305,12 +2305,12 @@ MonoBehaviour:
   _advanced:
     minMoveDistance: 0
     maxMovementIterations: 5
-    maxDepenetrationIterations: 1
-    enablePhysicsInteraction: 0
+    maxDepenetrationIterations: 2
+    enablePhysicsInteraction: 1
     allowPushCharacters: 0
-    impartPlatformMovement: 0
+    impartPlatformMovement: 1
     impartPlatformRotation: 0
-    impartPlatformVelocity: 0
+    impartPlatformVelocity: 1
   _minSlopeLimit: 0.7069833
 --- !u!136 &145355633
 CapsuleCollider:
