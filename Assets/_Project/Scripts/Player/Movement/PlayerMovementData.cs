@@ -1,9 +1,10 @@
+using System;
 using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Game.Player.Movement
 {
-    [CreateAssetMenu(fileName = "NewMovementData", menuName = "Static Data/Movement Data")]
+    [CreateAssetMenu(fileName = "NewMovementData", menuName = "Static Data/Movement Data (OLD)")]
     public class PlayerMovementData : ScriptableObject
     {
         [Header("Ground settings")]

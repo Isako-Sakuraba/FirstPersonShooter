@@ -24,7 +24,7 @@ MonoBehaviour:
   JumpHeight: 2
   JumpBuffer: 0.1
   CoyoteTime: 0.25
-  JumpAmount: 1
+  JumpAmount: 2
   Gravity: -18
   MinSlideEnterSpeed: 8
   MinSlideSpeed: 5

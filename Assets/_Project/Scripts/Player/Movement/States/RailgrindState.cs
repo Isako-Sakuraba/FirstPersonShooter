@@ -43,7 +43,6 @@ namespace Game.Player.Movement.States
             float dot = Vector3.Dot(context.State.Velocity.normalized, tangent.normalized);
             dot = Mathf.Sign(dot);
             if (dot == 0f) dot = 1f;
-            Debug.Log(dot);
 
             Vector3 projectedVelocity = Vector3.Project(context.State.Velocity, tangent);
 

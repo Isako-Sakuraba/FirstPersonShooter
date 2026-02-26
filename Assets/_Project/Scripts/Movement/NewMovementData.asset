@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0ab5997020ad3947b4e32a17e0e4ee0, type: 3}
+  m_Name: NewMovementData
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Data.Movement.PlayerMovementData
+  Ground:
+    WalkSpeed: 6
+    RunSpeed: 10
+    CrouchSpeed: 4
+    Acceleration: 10
+    Friction: 8
+    StopSpeed: 2
+  Air:
+    Speed: 4
+    Acceleration: 40
+    AccelerationCap: 8
+    VerticalTerminalVelocity: -40
+  Jump:
+    Height: 2
+    Buffer: 0.1
+    CoyoteTime: 0.1
+    Amount: 1
+  Slide:
+    RequiredEnterSpeed: 7
+    MinExitSpeed: 4
+    EnterVelocityMultiplier: 1.2
+    Friction: 3.5
+    Steering: 6
+    SteeringDisableSpeed: 4
+    DownhillAcceleration: 20
+    AllignRate: 10
+  Wallrun:
+    Duration: 3
+    NormalCooldown: 2
+    Gravity: -2
+    StickForce: 10
+    EnterBoostHeight: 2.5
+    Acceleration: 25
+    Speed: 12
+    VerticalSpeedLimit: {x: -3, y: 10}
+    WallJumpHeight: 2
+    ExitJumpHeight: 1
+    ExitSeparationImpulse: 2
+    IncludedLayers:
+      serializedVersion: 2
+      m_Bits: 1
+  Environment:
+    Gravity: -18
