@@ -1,6 +1,6 @@
 using FiniteStateMachine.Core;
 
-namespace Game.Player.Movement
+namespace Game.Movement
 {
     public enum GroundedState
     {

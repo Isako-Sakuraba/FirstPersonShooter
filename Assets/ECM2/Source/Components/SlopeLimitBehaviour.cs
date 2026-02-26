@@ -78,7 +78,7 @@ namespace ECM2
             set
             {
                 _slopeLimit = Mathf.Clamp(value, 0.0f, 89.0f);
-                
+
                 _slopeLimitCos = Mathf.Cos(_slopeLimit * Mathf.Deg2Rad);
             }
         }

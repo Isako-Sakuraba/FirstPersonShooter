@@ -1,13 +1,20 @@
 using ECM2;
+using Game.Data.Movement;
 using System;
 
-namespace Game.Player.Movement
+namespace Game.Movement
 {
-    public class BodyController
+    public enum Stance
+    {
+        Standing,
+        Crouched
+    }
+
+    public class BodyController : IBodyState
     {
         private CharacterMovement _controller;
-        private PlayerBodyData _bodyData;
-        
+        private BodyConfig _bodyData;
+
         private Stance _stance;
 
         public Stance Stance => _stance;
@@ -15,7 +22,7 @@ namespace Game.Player.Movement
 
         public event Action<Stance> OnStanceChanged = delegate { };
 
-        public BodyController(CharacterMovement controller, PlayerBodyData bodyData)
+        public BodyController(CharacterMovement controller, BodyConfig bodyData)
         {
             _controller = controller;
             _bodyData = bodyData;
@@ -25,8 +32,7 @@ namespace Game.Player.Movement
 
         public void Reset()
         {
-            _controller.radius = _bodyData.Radius;
-            _controller.SetHeight(_bodyData.StandingHeight);
+            _controller.SetDimensions(_bodyData.Radius, _bodyData.StandingHeight);
             _stance = Stance.Standing;
             OnStanceChanged.Invoke(Stance);
         }
@@ -54,5 +60,12 @@ namespace Game.Player.Movement
                 OnStanceChanged.Invoke(_stance);
             }
         }
+    }
+
+    // Read only interface
+    public interface IBodyState
+    {
+        public Stance Stance { get; }
+        public float Height { get; }
     }
 }

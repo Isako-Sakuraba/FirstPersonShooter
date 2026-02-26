@@ -1,149 +1,153 @@
 using FiniteStateMachine.Common;
 using FiniteStateMachine.Core;
-using Game.Player.Movement.States;
+using Game.Movement.States;
 using UnityEngine;
-using Trans = FiniteStateMachine.Common.LambdaTransition<Game.Player.Movement.PlayerContext>;
-using ActionTrans = FiniteStateMachine.Common.LambdaActionTransition<Game.Player.Movement.PlayerContext>;
-using TBundle = FiniteStateMachine.Common.TransitionBundle;
-using System;
+using LMS = Game.Movement.LocomotionMachineState;
+using Trans = FiniteStateMachine.Common.LambdaTransition<Game.Movement.LocomotionContext>;
+using ATrans = FiniteStateMachine.Common.LambdaActionTransition<Game.Movement.LocomotionContext>;
 
-namespace Game.Player.Movement
+namespace Game.Movement
 {
-    public enum LocomotionState
+    public enum LocomotionMachineState
     {
         Grounded,
-        Airborne,
+        Fall,
+        Jump,
         Wall,
         Rail
     }
 
-    public class LocomotionStateMachine : StateMachine<LocomotionState> 
+    public class LocomotionStateMachine : StateMachine<LocomotionMachineState>
     {
-        private PlayerContext _context;
+        private LocomotionContext _context;
 
-        public GroundedStateMachine GFSM;
-        public AirborneStateMachine AFSM;
+        private GroundedStateMachine _groundMachine;
 
-        public LocomotionStateMachine(PlayerContext context)
+        public GroundedState GroundedState => _groundMachine.CurrentState;
+
+        public LocomotionStateMachine(LocomotionContext context)
         {
             _context = context;
         }
 
-        public static LocomotionStateMachine CreateDefault(PlayerContext context)
+        public void CreateDefault(LocomotionContext context)
         {
-            LocomotionStateMachine machine = new(context);
-
-            CreateStatesAndTransition(machine, context);
-
-            return machine;
+            CreateStatesAndTransition(context);
         }
 
-        private static void CreateStatesAndTransition(LocomotionStateMachine machine, PlayerContext context)
+        private void CreateStatesAndTransition(LocomotionContext context)
         {
-            var groundedFSM = new GroundedStateMachine();
-            var airborneFSM = new AirborneStateMachine();
-            var wallrunFSM = new WallrunStateMachine();
+            var machine = this;
 
-            machine.GFSM = groundedFSM;
-            machine.AFSM = airborneFSM;
+            var groundedFSM = new GroundedStateMachine();
+            _groundMachine = groundedFSM;
 
             var moveState = new MoveState(context);
             var slideState = new SlideState(context);
             var jumpState = new JumpState(context);
             var fallState = new FallState(context);
             var wallRunState = new WallRunState(context);
-            var wallJumpState = new WallJumpState(context);
             var railState = new RailgrindState(context);
 
             // Register HFSMs
-            machine.AddState(LocomotionState.Grounded, groundedFSM);
-            machine.AddState(LocomotionState.Airborne, airborneFSM);
-            machine.AddState(LocomotionState.Wall, wallrunFSM);
-            machine.AddState(LocomotionState.Rail, railState);
+            machine.AddState(LMS.Grounded, groundedFSM);
+            machine.AddState(LMS.Fall, fallState);
+            machine.AddState(LMS.Jump, jumpState);
+            machine.AddState(LMS.Wall, wallRunState);
+            machine.AddState(LMS.Rail, railState);
 
             // Add grounded states
             groundedFSM.AddState(GroundedState.Move, moveState);
             groundedFSM.AddState(GroundedState.Slide, slideState);
             groundedFSM.Run(GroundedState.Move);
 
-            // Add airborne states
-            airborneFSM.AddState(AirborneState.Jump, jumpState);
-            airborneFSM.AddState(AirborneState.Fall, fallState);
-            airborneFSM.Run(AirborneState.Fall);
+            CreateRootTransitions(context);
+            CreateGroundedTransitions(context);
 
-            // Add wallrun states
-            wallrunFSM.AddState(WallState.Run, wallRunState);
-            wallrunFSM.AddState(WallState.Jump, wallJumpState);
-            wallrunFSM.Run(WallState.Run);
-
-
-            CreateRootTransitions(machine, groundedFSM, airborneFSM, context);
-            CreateGroundedTransitions(groundedFSM, context);
-            CreateAirborneTransitions(airborneFSM, context);
-            CreateWallrunTransitions(wallrunFSM, context);
-
-            machine.Run(LocomotionState.Airborne);
+            machine.Run(LMS.Fall);
         }
 
-        private static void CreateRootTransitions(
-            LocomotionStateMachine machine,
-            GroundedStateMachine groundFSM,
-            AirborneStateMachine airFSM,
-            PlayerContext context)
+        private void CreateRootTransitions(
+            LocomotionContext context)
         {
+            var machine = this;
+
             var toWall = new Trans(context, ctx =>
             {
                 bool sameWallCondition = true;
-                if (ctx.State.LastWallNormal == ctx.Sensors.WallCollision.normal)
-                    sameWallCondition = !ctx.State.WallrunBeginTimer.IsRunning;
+                if (ctx.State.Wallrun.LastWallNormal == ctx.Sensors.WallCollision.normal)
+                    sameWallCondition = !ctx.State.Wallrun.BeginCooldown.IsRunning;
 
                 return !ctx.IsGrounded && ctx.Sensors.WallDetected && sameWallCondition;
             });
             var toAir = new Trans(context, ctx => !ctx.IsGrounded);
             var toGround = new Trans(context, ctx => ctx.IsGrounded);
 
+            // Coyote time
+            var groundToAir = new Trans(context, ctx => !ctx.IsGrounded);
+            var coyoteTimeActionTrans = new ATrans(groundToAir, context, ctx => ctx.State.Jump.CoyoteTimer.Start());
+            context.State.Jump.CoyoteTimer.OnTimerFinished += () => context.State.Jump.JumpsLeft--;
+
 
             var toAirFromWall = new Trans(context, ctx => !ctx.IsGrounded && !ctx.Sensors.WallDetected);
 
-            var jumpToAir = new Trans(context, ctx => ctx.Input.JumpBufferTimer.IsRunning && ctx.State.JumpsLeft > 0 && ctx.IsGrounded);
+
+            var trueTrans = new LambdaTransition(() => true);
 
             // Enter transitions (initial selection)
-            machine.AddEnterTransition(LocomotionState.Airborne, toAir);
-            machine.AddEnterTransition(LocomotionState.Grounded, toGround);
+            machine.AddEnterTransition(LMS.Fall, toAir);
+            machine.AddEnterTransition(LMS.Grounded, toGround);
 
             // Any transitions (runtime)
-            machine.AddTransition(LocomotionState.Grounded, LocomotionState.Airborne, jumpToAir); // higher priority than normal ground -> air
-            machine.AddTransition(LocomotionState.Grounded, LocomotionState.Airborne, toAir);
-            machine.AddTransition(LocomotionState.Airborne, LocomotionState.Grounded, toGround);
+            var jumpToAir = new Trans(context, ctx => ctx.Input.JumpBufferTimer.IsRunning && ctx.State.Jump.JumpsLeft > 0);
+            var jumpTransition = new ATrans(jumpToAir, context, ctx => ctx.State.Jump.Payload.Set(new JumpPayload(JumpKind.Normal)));
+            machine.AddTransition(LMS.Grounded, LMS.Jump, jumpTransition);
+            machine.AddTransition(LMS.Fall, LMS.Jump, jumpTransition);
+            machine.AddTransition(LMS.Grounded, LMS.Fall, coyoteTimeActionTrans);
+            machine.AddTransition(LMS.Fall, LMS.Grounded, toGround);
 
             // Wallrun transition
-            machine.AddTransition(LocomotionState.Airborne, LocomotionState.Wall, toWall);
-            machine.AddTransition(LocomotionState.Wall, LocomotionState.Grounded, toGround);
-            machine.AddTransition(LocomotionState.Wall, LocomotionState.Airborne, toAirFromWall);
+            var wallToJump = new Trans(context, ctx => ctx.Input.JumpBufferTimer.IsRunning && ctx.State.Jump.JumpsLeft > 0);
+            var wallJumpTransition = new ATrans(wallToJump, context, 
+                ctx => ctx.State.Jump.Payload.Set(new JumpPayload(JumpKind.Wall, ctx.State.Wallrun.LastWallNormal)));
+            var wallToFall = new Trans(context, ctx => !ctx.Sensors.WallDetected);
+            machine.AddTransition(LMS.Fall, LMS.Wall, toWall);
+            machine.AddTransition(LMS.Wall, LMS.Jump, wallJumpTransition);
+            machine.AddTransition(LMS.Wall, LMS.Grounded, toGround);
+            machine.AddTransition(LMS.Wall, LMS.Fall, wallToFall);
 
-            var toRail = new Trans(context, ctx => ctx.State.IsAttached);
+            // Jump transitions
+
+            machine.AddTransition(LMS.Jump, LMS.Fall, trueTrans);
+
+            var toRail = new Trans(context, ctx => ctx.State.Rail.AttachmentPayload.IsPresent);
             var fromRailToJump = new Trans(context, ctx => ctx.Input.JumpBufferTimer.IsRunning);
-            var fromRailEnded = new Trans(context, ctx => ctx.State.CurrentT == 1f || ctx.State.CurrentT == 0f);
+            var fromRailEnded = new Trans(context, ctx => ctx.State.Rail.T == 1f || ctx.State.Rail.T == 0f);
 
-            machine.AddTransition(LocomotionState.Rail, LocomotionState.Airborne, fromRailEnded);
-            machine.AddAnyTransition(LocomotionState.Rail, toRail);
-            machine.AddTransition(LocomotionState.Rail, LocomotionState.Airborne, fromRailToJump);
+            var railJumpTransition = new ATrans(fromRailToJump, context, ctx => ctx.State.Jump.Payload.Set(new(JumpKind.Rail)));
+
+            machine.AddAnyTransition(LMS.Rail, toRail);
+
+            machine.AddTransition(LMS.Rail, LMS.Fall, fromRailEnded);
+            machine.AddTransition(LMS.Rail, LMS.Jump, railJumpTransition);
         }
 
-        private static void CreateGroundedTransitions(GroundedStateMachine machine, PlayerContext context)
+        private void CreateGroundedTransitions(LocomotionContext context)
         {
+            var machine = _groundMachine;
+
             // Helpers
-            float HorizontalSpeed(PlayerContext ctx)
+            float HorizontalSpeed(LocomotionContext ctx)
             {
-                var v = ctx.State.Velocity;
+                var v = ctx.State.Kinematics.Velocity;
                 return new Vector3(v.x, 0f, v.z).magnitude;
             }
 
             // Move -> Slide
             var toSlide = new Trans(context, ctx =>
                 ctx.IsGrounded &&
-                ctx.Input.Crouch &&                              // edge-triggered
-                HorizontalSpeed(ctx) >= ctx.Data.MinSlideEnterSpeed
+                ctx.Input.CrouchHeld &&                              // edge-triggered
+                HorizontalSpeed(ctx) >= ctx.Data.Slide.RequiredEnterSpeed
             );
 
             // Slide -> Move
@@ -151,10 +155,10 @@ namespace Game.Player.Movement
                 {
                     if (!ctx.IsGrounded) return false;
 
-                    Vector3 v = ctx.State.Velocity;
+                    Vector3 v = ctx.State.Kinematics.Velocity;
                     float speed = new Vector3(v.x, 0f, v.z).magnitude;
 
-                    if (speed < ctx.Data.MinSlideSpeed || ctx.Body.Stance == Stance.Standing) return true;
+                    if (speed < ctx.Data.Slide.MinExitSpeed || ctx.Body.Stance == Stance.Standing) return true;
 
                     return false;
                 }
@@ -163,62 +167,7 @@ namespace Game.Player.Movement
             machine.AddTransition(GroundedState.Move, GroundedState.Slide, toSlide);
             machine.AddTransition(GroundedState.Slide, GroundedState.Move, toMove);
 
-            // Note: Slide -> Airborne is handled by root transitions (jump press or !grounded).
-        }
-
-        private static void CreateAirborneTransitions(AirborneStateMachine machine, PlayerContext context)
-        {
-            //var anyToExit = new Trans(context,
-            //(ctx) =>
-            //{
-            //    return ctx.State.IsGrounded;
-            //});
-
-            //machine.AddAnyToExitTransition(anyToExit);
-
-            var fromJump = new Trans(context,
-                (ctx) =>
-                {
-                    return ctx.Input.JumpBufferTimer.IsRunning && !ctx.State.WallJump;
-                });
-
-
-
-            var notFromJump = new Trans(context, ctx => !ctx.Input.Jump && !ctx.State.WallJump);
-
-            // COYOTE TIME IS HERE
-            var coyoteTimeStartWrapper = new ActionTrans(notFromJump, context, ctx => ctx.State.CoyoteTimer.Start());
-
-
-            machine.AddEnterTransition(AirborneState.Fall, coyoteTimeStartWrapper);
-            machine.AddEnterTransition(AirborneState.Jump, fromJump);
-
-            var trueTransition = new LambdaTransition(() => true);
-
-            // Does not accout for coyote time
-            // TODO: account for coyote time, decrease jump count when elapsed
-            var coyoteJump = new Trans(context, ctx =>
-            {
-                return ctx.Input.JumpBufferTimer.IsRunning && ctx.State.JumpsLeft > 0;
-            });
-
-            machine.AddTransition(AirborneState.Jump, AirborneState.Fall, trueTransition);
-            machine.AddTransition(AirborneState.Fall, AirborneState.Jump, coyoteJump);
-        }
-
-        private static void CreateWallrunTransitions(WallrunStateMachine machine, PlayerContext context)
-        {
-            var fromJump = new Trans(context,
-            (ctx) =>
-            {
-                return ctx.Input.JumpBufferTimer.IsRunning && ctx.State.JumpsLeft > 0;
-            });
-
-            var wallRunTimerEnded = new Trans(context, ctx => ctx.State.WallrunEndTimer.IsFinished);
-
-
-            machine.AddTransition(WallState.Run, WallState.Jump, fromJump);
-            machine.AddTransition(WallState.Run, WallState.Jump, wallRunTimerEnded);
+            // Note: Slide -> Fall is handled by root transitions (jump press or !grounded).
         }
     }
 }

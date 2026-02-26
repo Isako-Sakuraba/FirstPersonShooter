@@ -75,7 +75,7 @@ namespace ECM2
         #endregion
 
         #region MONOBEHAVIOUR
-        
+
         /// <summary>
         /// If overriden, base method MUST be called.
         /// </summary>
@@ -90,7 +90,7 @@ namespace ECM2
                                $"Please attach a 'Animator' to the '{name}' game object");
             }
         }
-        
+
         /// <summary>
         /// If overriden, base method MUST be called.
         /// </summary>
@@ -100,7 +100,7 @@ namespace ECM2
             _rootMotionDeltaPosition = Vector3.zero;
             _rootMotionDeltaRotation = Quaternion.identity;
         }
-        
+
         /// <summary>
         /// If overriden, base method MUST be called.
         /// </summary>

@@ -1,5 +1,3 @@
-using System;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Game.Player.Movement
@@ -15,7 +13,7 @@ namespace Game.Player.Movement
         public float GroundFriction = 8f;
         public float StopSpeed = 2f;
 
-        [Header("Airborne settings")]
+        [Header("Fall settings")]
         public float AirSpeed = 4f;
         public float AirAcceleration = 40f;
         public float AirAccelerationSpeedCap = 8f;

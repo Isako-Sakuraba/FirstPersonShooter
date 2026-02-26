@@ -3,17 +3,6 @@ using UnityEngine;
 
 namespace Game.Data.Movement
 {
-    [CreateAssetMenu(fileName = "NewMovementData", menuName = "Static Data/Player Movement Data")]
-    public class PlayerMovementData : ScriptableObject
-    {
-        public GroundConfig Ground;
-        public AirConfig Air;
-        public JumpConfig Jump;
-        public SlideConfig Slide;
-        public WallrunConfig Wallrun;
-        public EnvironmentConfig Environment;
-    }
-
     [Serializable]
     public class GroundConfig
     {
@@ -45,7 +34,7 @@ namespace Game.Data.Movement
         public float EnterBoostHeight = 2.5f;
 
         public float Acceleration = 25f;
-        public float Speed= 12f;
+        public float Speed = 12f;
         public Vector2 VerticalSpeedLimit = new Vector2(-3f, 10f);
 
         public float WallJumpHeight = 2f;

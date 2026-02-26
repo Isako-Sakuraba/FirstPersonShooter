@@ -7,7 +7,7 @@ namespace Game.Interaction
         public readonly GameObject Interactor;
         public readonly Vector3 Position;
         public readonly Vector3 Forward;
-        public readonly bool IsDirect   ;
+        public readonly bool IsDirect;
 
         public InteractionContext(GameObject interactor, Vector3 position, Vector3 forward, bool direct)
         {

@@ -2,11 +2,11 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Splines;
 
-namespace Game.Player.Movement.States
+namespace Game.Movement.States
 {
-    public class RailgrindState : PlayerMovementStateBase
+    public class RailgrindState : LocomotionStateBase
     {
-        public RailgrindState(PlayerContext context) : base(context) { }
+        public RailgrindState(LocomotionContext context) : base(context) { }
         private enum State
         {
             Attaching,
@@ -25,12 +25,17 @@ namespace Game.Player.Movement.States
 
         public override void Enter()
         {
-            _railSpline = context.State.RailSplineContainer;
-            if (!context.State.IsAttached)
-                Debug.LogWarning("Entered rail grinding state, but not attached?");
+            var consumed = context.State.Rail.AttachmentPayload.TryConsume(out var payload);
+            if (!consumed)
+                Debug.LogError("Entered rail grinding state, but no payload?");
 
+            context.State.Rail.IsAttached = true;
+            context.State.Rail.Spline = payload.Spline;
+            context.State.Rail.T = payload.StartT;
 
-            float3 localQuery = _railSpline.transform.InverseTransformPoint(context.Controller.transform.position);
+            _railSpline = context.State.Rail.Spline;
+
+            float3 localQuery = _railSpline.transform.InverseTransformPoint(context.Motor.transform.position);
 
             SplineUtility.GetNearestPoint(_railSpline.Spline, localQuery, out float3 localNearest, out float t);
 
@@ -40,60 +45,60 @@ namespace Game.Player.Movement.States
             tangent.Normalize();
 
 
-            float dot = Vector3.Dot(context.State.Velocity.normalized, tangent.normalized);
+            float dot = Vector3.Dot(context.State.Kinematics.Velocity.normalized, tangent.normalized);
             dot = Mathf.Sign(dot);
             if (dot == 0f) dot = 1f;
 
-            Vector3 projectedVelocity = Vector3.Project(context.State.Velocity, tangent);
+            Vector3 projectedVelocity = Vector3.Project(context.State.Kinematics.Velocity, tangent);
 
 
             _state = State.Attaching;
 
             _currentSpeed = dot * projectedVelocity.magnitude * 1.2f;
-            context.State.Velocity = Vector3.zero;
+            context.State.Kinematics.Velocity = Vector3.zero;
             _currentT = t;
-            context.State.CurrentT = Mathf.Clamp01(_currentT);
+            context.State.Rail.T = Mathf.Clamp01(_currentT);
             _length = _railSpline.CalculateLength();
-            context.Controller.PauseGroundConstraint(0.6f);
+            context.Motor.PauseGroundConstraint(0.6f);
         }
 
         public override void Process()
         {
-            if (_state == State.Attaching)
-            {
-                Vector3 worldPoint = _railSpline.EvaluatePosition(_currentT);
-                Vector3 next = Vector3.Lerp(context.Controller.transform.position, worldPoint, Time.fixedDeltaTime * 12f );
-                context.Controller.SetPosition(worldPoint);
-                if ((next-worldPoint).sqrMagnitude <= 0.001f)
-                    _state = State.Grinding;
-            }
-            else if (_state == State.Grinding)
-            {
-                Vector3 tangent = _railSpline.EvaluateTangent(_currentT);
-                float dot = Vector3.Dot(context.Orientation.Forward, tangent.normalized);
-                dot = Mathf.Sign(dot);
-                if (dot == 0f) dot = 1f;
-                float input = context.Input.Move.y;
-                float unnormalizedT = _currentT * _length;
-                _currentSpeed = Mathf.Lerp(_currentSpeed, _maxSpeed * input * dot, _acceleration * Time.fixedDeltaTime);
-                float nextUT = unnormalizedT + (_currentSpeed * Time.fixedDeltaTime);
-                float nextT = nextUT / _length;
-                _currentT = nextT;
+            //if (_state == State.Attaching)
+            //{
+            //    Vector3 worldPoint = _railSpline.EvaluatePosition(_currentT);
+            //    Vector3 next = Vector3.Lerp(context.Controller.transform.position, worldPoint, Time.fixedDeltaTime * 12f );
+            //    context.Controller.SetPosition(worldPoint);
+            //    if ((next-worldPoint).sqrMagnitude <= 0.001f)
+            //        _state = State.Grinding;
+            //}
+            //else if (_state == State.Grinding)
+            //{
+            Vector3 tangent = _railSpline.EvaluateTangent(_currentT);
+            float dot = Vector3.Dot(context.Orientation.Forward, tangent.normalized);
+            dot = Mathf.Sign(dot);
+            if (dot == 0f) dot = 1f;
+            float input = context.Input.Move.y;
+            float unnormalizedT = _currentT * _length;
+            _currentSpeed = Mathf.Lerp(_currentSpeed, _maxSpeed * input * dot, _acceleration * Time.fixedDeltaTime);
+            float nextUT = unnormalizedT + (_currentSpeed * Time.fixedDeltaTime);
+            float nextT = nextUT / _length;
+            _currentT = nextT;
 
-                Vector3 worldPoint = _railSpline.EvaluatePosition(_currentT);
+            Vector3 worldPoint = _railSpline.EvaluatePosition(_currentT);
 
 
-                context.Controller.SetPosition(worldPoint);
-            }
-            context.State.CurrentT = Mathf.Clamp01(_currentT);
+            context.Motor.SetPosition(worldPoint);
+            //}
+            context.State.Rail.T = Mathf.Clamp01(_currentT);
         }
 
         public override void Exit()
         {
-            context.State.IsAttached = false;
-            context.State.RailSplineContainer = null;
+            context.State.Rail.IsAttached = false;
+            context.State.Rail.Spline = null;
             Vector3 tangent = _railSpline.Spline.EvaluateTangent(_currentT);
-            context.Controller.LaunchCharacter(tangent.normalized * _currentSpeed);
+            context.State.Kinematics.Velocity += tangent.normalized * _currentSpeed;
         }
     }
 }

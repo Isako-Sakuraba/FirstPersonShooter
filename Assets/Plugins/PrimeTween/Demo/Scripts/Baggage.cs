@@ -2,21 +2,27 @@
 using PrimeTween;
 using UnityEngine;
 
-namespace PrimeTweenDemo {
-    public class Baggage : Animatable {
+namespace PrimeTweenDemo
+{
+    public class Baggage : Animatable
+    {
         [SerializeField] Transform animationAnchor;
         Sequence sequence;
 
-        public override void OnClick() {
+        public override void OnClick()
+        {
             PlayFlipAnimation();
         }
 
-        public override Sequence Animate(bool _) {
+        public override Sequence Animate(bool _)
+        {
             return PlayFlipAnimation();
         }
 
-        Sequence PlayFlipAnimation() {
-            if (!sequence.isAlive) {
+        Sequence PlayFlipAnimation()
+        {
+            if (!sequence.isAlive)
+            {
                 const float jumpDuration = 0.3f;
                 sequence = Sequence.Create()
                     .Chain(Tween.LocalPositionZ(animationAnchor, 0.2f, jumpDuration))

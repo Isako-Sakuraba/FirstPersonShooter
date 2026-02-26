@@ -1,3 +1,4 @@
+using Game.Movement.API.Requests;
 using Game.Player.Movement;
 using Unity.Mathematics;
 using UnityEngine;
@@ -9,7 +10,7 @@ namespace Game.Interaction
     {
         private SplineContainer _splineContainer;
         private EntityId _playerId;
-        private PlayerContext _context;
+        private IRailAttachable _attachable;
 
         public IInteractable Interactable => this;
 
@@ -20,10 +21,10 @@ namespace Game.Interaction
 
         public bool CanInteract(in InteractionContext context)
         {
-            if(_context == null)
+            if (_attachable == null)
                 return true;
 
-            return !_context.State.IsAttached;
+            return !_attachable.IsOnRail;
         }
 
         public Vector3 GetInteractionPoint(in InteractionContext context)
@@ -51,24 +52,21 @@ namespace Game.Interaction
         public void Interact(in InteractionContext context)
         {
             // TODO: remove this monstrocity
-            var movement = context.Interactor.GetComponentInChildren<PlayerMovement>();
-            if (movement == null)
+            var attachable = context.Interactor.GetComponentInChildren<IRailAttachable>();
+            if (attachable == null)
                 return;
 
             _playerId = context.Interactor.GetEntityId();
-            _context = movement.Conext;
+            _attachable = attachable;
 
-            var state = movement.Conext.State;
+            // World -> local (important)
+            float3 localQuery = _splineContainer.transform.InverseTransformPoint(context.Position);
 
-            if (!state.IsAttached)
-                Attach(movement.Conext);
-                
-        }
+            // nearest + t are in spline local space
+            SplineUtility.GetNearestPoint(_splineContainer.Spline, localQuery, out float3 localNearest, out float t);
 
-        public void Attach(PlayerContext context)
-        {
-            context.State.IsAttached = true;
-            context.State.RailSplineContainer = _splineContainer;
+            if (!_attachable.IsOnRail)
+                _attachable.TryAttachRail(new RailAttachRequest(_splineContainer, t));
         }
     }
 }

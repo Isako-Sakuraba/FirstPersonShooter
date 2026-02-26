@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Game.Player.Movement
+namespace Game.Movement
 {
     public class CharacterOrientation : MonoBehaviour
     {

@@ -1,4 +1,4 @@
-using Game.Player.Movement;
+using Game.Movement;
 using UnityEngine;
 
 namespace Game.Player

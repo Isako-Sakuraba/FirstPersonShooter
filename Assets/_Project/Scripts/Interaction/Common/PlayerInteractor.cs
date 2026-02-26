@@ -1,6 +1,5 @@
 using Game.Interaction;
 using Game.Utils;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -47,7 +46,7 @@ namespace Game.Player.Interaction
 
         private void RemoveNullInteractibles()
         {
-            
+
         }
 
         private void UpdateFocus()

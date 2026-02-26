@@ -1,5 +1,4 @@
 using System;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,10 +6,10 @@ using UnityEngine.InputSystem;
 public class InputService : MonoBehaviour
 {
     private static InputService _instance;
-    public static InputService Instance 
-    { 
-        get 
-        { 
+    public static InputService Instance
+    {
+        get
+        {
             if (_instance == null)
             {
                 _instance = FindFirstObjectByType<InputService>();

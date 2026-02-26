@@ -1,7 +1,6 @@
 using ECM2;
-using System;
 
-namespace Game.Player.Movement
+namespace Game.Movement
 {
     public class LocomotionSensors
     {
@@ -12,7 +11,7 @@ namespace Game.Player.Movement
 
         public CollisionResult WallCollision => _wallCollision;
         public bool WallDetected => _wallDetected;
-        
+
 
         public LocomotionSensors(CharacterMovement controller)
         {

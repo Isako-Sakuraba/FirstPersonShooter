@@ -7,7 +7,7 @@ namespace ECM2
     /// General purpose collision detection functions.
     /// Lets you filter results implementing the IColliderFilter interface.
     /// </summary>
-    
+
     public static class CollisionDetection
     {
         #region CONSTANTS

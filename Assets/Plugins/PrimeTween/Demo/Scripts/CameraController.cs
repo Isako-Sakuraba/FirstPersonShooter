@@ -3,8 +3,10 @@ using PrimeTween;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace PrimeTweenDemo {
-    public class CameraController : Clickable {
+namespace PrimeTweenDemo
+{
+    public class CameraController : Clickable
+    {
         [SerializeField] HighlightedElementController highlightedElementController;
         [SerializeField] SwipeTutorial swipeTutorial;
         [SerializeField] Camera mainCamera;
@@ -14,26 +16,33 @@ namespace PrimeTweenDemo {
         bool isAnimating;
         float curRotationSpeed;
 
-        void OnEnable() {
+        void OnEnable()
+        {
             currentAngle = transform.localEulerAngles.y;
             isAnimating = true;
             Tween.Custom(this, 0, 5, 2, (target, val) => target.curRotationSpeed = val);
         }
 
-        void Update() {
-            if (isAnimating) {
+        void Update()
+        {
+            if (isAnimating)
+            {
                 currentAngle += curRotationSpeed * Time.deltaTime;
                 transform.localEulerAngles = new Vector3(0f, currentAngle);
             }
-            if (highlightedElementController?.current == null && InputController.GetDown() && !EventSystem.current.IsPointerOverGameObject()) {
+            if (highlightedElementController?.current == null && InputController.GetDown() && !EventSystem.current.IsPointerOverGameObject())
+            {
                 inputBeginPos = InputController.screenPosition;
             }
-            if (InputController.GetUp()) {
+            if (InputController.GetUp())
+            {
                 inputBeginPos = null;
             }
-            if (inputBeginPos.HasValue) {
+            if (inputBeginPos.HasValue)
+            {
                 var deltaMove = InputController.screenPosition - inputBeginPos.Value;
-                if (Mathf.Abs(deltaMove.x) / Screen.width > 0.05f) {
+                if (Mathf.Abs(deltaMove.x) / Screen.width > 0.05f)
+                {
                     isAnimating = false;
                     inputBeginPos = null;
                     currentAngle += Mathf.Sign(deltaMove.x) * 45f;
@@ -45,11 +54,13 @@ namespace PrimeTweenDemo {
 
         public override void OnClick() => ShakeCamera();
 
-        public void ShakeCamera() {
+        public void ShakeCamera()
+        {
             Shake();
         }
 
-        internal Sequence Shake(float startDelay = 0) {
+        internal Sequence Shake(float startDelay = 0)
+        {
             return Tween.ShakeCamera(mainCamera, cameraShakeStrength, startDelay: startDelay);
         }
     }

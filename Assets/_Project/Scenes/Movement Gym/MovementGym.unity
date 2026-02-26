@@ -2231,7 +2231,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 145355630}
-  - component: {fileID: 145355631}
+  - component: {fileID: 145355636}
   - component: {fileID: 145355635}
   - component: {fileID: 145355632}
   - component: {fileID: 145355634}
@@ -2259,21 +2259,6 @@ Transform:
   - {fileID: 1979516088}
   m_Father: {fileID: 1863778752}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &145355631
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 145355629}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3da5309ab13ba714593e6ae65ca77435, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.Player.Movement.PlayerMovement
-  _movementData: {fileID: 11400000, guid: 356bb7c5468320a478893f92fa3fbfea, type: 2}
-  _bodyData: {fileID: 11400000, guid: ace92ef0592ef534a9e892aa05409caa, type: 2}
-  _orientation: {fileID: 145355635}
 --- !u!114 &145355632
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2374,6 +2359,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17beec90cbde4fb458bb50139c00c350, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Player.Movement.CharacterOrientation
+--- !u!114 &145355636
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 145355629}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8dccc72d13687264aa2bcb97138b6684, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Movement.Player.PlayerController
+  _movementData: {fileID: 11400000, guid: c2da1e62bcde68d41ad6827466dc676d, type: 2}
+  _bodyData: {fileID: 11400000, guid: 33ce78f8fe08d8b49b23be72abb78125, type: 2}
+  _orientation: {fileID: 145355635}
 --- !u!1 &150778920
 GameObject:
   m_ObjectHideFlags: 0
@@ -25028,7 +25028,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6c751a532f6e894eb503bbf69679a67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Player.Experimental.ExperimentalHeadHeightChanger
-  _player: {fileID: 145355631}
+  _player: {fileID: 145355636}
   _topOffset: 0.28
   _duration: 0.2
   _ease: 7
@@ -37780,7 +37780,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37927daf10ac3a44db5397c543a93c30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Player.Experimental.ExperimentalHeadRotation
-  _player: {fileID: 145355631}
+  _player: {fileID: 145355636}
   _target: {fileID: 1502723026}
   _maxRollDegrees: 12
   _wallRunRollDegrees: 14

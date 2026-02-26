@@ -1,10 +1,9 @@
 using System.Collections.Generic;
-using UnityEngine;
 
 
 namespace FiniteStateMachine.Core
 {
-    public interface IStateMachine 
+    public interface IStateMachine
     {
         public void RequestResettle();
         public string GetFullPath();
@@ -29,8 +28,10 @@ namespace FiniteStateMachine.Core
         public bool ResettleRequested => _resettleRequested;
 
         private StateNode _currentNode;
+        public EStateId CurrentState => _currentNode.Id;
+
         private bool _currentNodeExists;
-        private Dictionary<EStateId, StateNode> _states = new ();
+        private Dictionary<EStateId, StateNode> _states = new();
 
         private EStateId _defaultState;
         private bool _processDefault;
@@ -86,7 +87,7 @@ namespace FiniteStateMachine.Core
             bool immediate = (enterEvaluated && node.Immediate) || _processDefault;
             if (immediate)
                 Settle();
-        } 
+        }
 
         public virtual void Exit()
         {
@@ -133,10 +134,10 @@ namespace FiniteStateMachine.Core
         {
             AssertContainsState(from);
 
-            if(_exitTransitions.TryGetValue(from, out var list))
+            if (_exitTransitions.TryGetValue(from, out var list))
                 list.Add(transition);
             else
-                _exitTransitions.Add(from, new List<ITransition>{transition});
+                _exitTransitions.Add(from, new List<ITransition> { transition });
         }
 
         // bool immediate asks for resettle?
@@ -227,7 +228,7 @@ namespace FiniteStateMachine.Core
                     return false;
                 }
 
-                if (settled) 
+                if (settled)
                     break;
 
                 TransitionNode transition;
@@ -281,7 +282,7 @@ namespace FiniteStateMachine.Core
             => AnyTransition(_enterTransitions, out transition);
 
         #region Transition evaluation
-        private bool AnyTransition(List<TransitionNode> container,  out TransitionNode evaluated)
+        private bool AnyTransition(List<TransitionNode> container, out TransitionNode evaluated)
         {
             foreach (TransitionNode node in container)
                 if (node.Evaluate())

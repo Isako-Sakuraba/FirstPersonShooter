@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0ab5997020ad3947b4e32a17e0e4ee0, type: 3}
-  m_Name: NewMovementData
-  m_EditorClassIdentifier: Assembly-CSharp::Game.Data.Movement.PlayerMovementData
+  m_Script: {fileID: 11500000, guid: efc46f5b87750c6448081ebbcaacbe8b, type: 3}
+  m_Name: DefaultMovementData
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Data.Movement.MovementConfig
   Ground:
     WalkSpeed: 6
     RunSpeed: 10
@@ -20,36 +20,36 @@ MonoBehaviour:
     Friction: 8
     StopSpeed: 2
   Air:
-    Speed: 4
-    Acceleration: 40
-    AccelerationCap: 8
+    Speed: 6
+    Acceleration: 6
+    AccelerationCap: 5
     VerticalTerminalVelocity: -40
   Jump:
     Height: 2
     Buffer: 0.1
-    CoyoteTime: 0.1
-    Amount: 1
+    CoyoteTime: 0.25
+    Amount: 2
   Slide:
     RequiredEnterSpeed: 7
     MinExitSpeed: 4
-    EnterVelocityMultiplier: 1.2
-    Friction: 3.5
+    EnterVelocityMultiplier: 4
+    Friction: 0.8
     Steering: 6
     SteeringDisableSpeed: 4
     DownhillAcceleration: 20
     AllignRate: 10
   Wallrun:
-    Duration: 3
-    NormalCooldown: 2
-    Gravity: -2
-    StickForce: 10
-    EnterBoostHeight: 2.5
+    Duration: 2.8
+    NormalCooldown: 1
+    Gravity: -3
+    StickForce: 60
+    EnterBoostHeight: 1.6
     Acceleration: 25
     Speed: 12
     VerticalSpeedLimit: {x: -3, y: 10}
     WallJumpHeight: 2
     ExitJumpHeight: 1
-    ExitSeparationImpulse: 2
+    ExitSeparationImpulse: 6
     IncludedLayers:
       serializedVersion: 2
       m_Bits: 1

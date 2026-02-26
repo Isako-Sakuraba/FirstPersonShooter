@@ -1,16 +1,16 @@
 using UnityEngine;
 
-namespace Game.Player.Movement.States
+namespace Game.Movement.States
 {
-    public class MoveState : PlayerMovementStateBase
+    public class MoveState : LocomotionStateBase
     {
-        public MoveState(PlayerContext context) : base(context) { }
+        public MoveState(LocomotionContext context) : base(context) { }
 
         public override void Enter()
         {
-            context.State.WallrunBeginTimer.Finish();
-            context.State.CoyoteTimer.Cancel();
-            context.State.JumpsLeft = context.Data.JumpAmount;
+            context.State.Wallrun.BeginCooldown.Finish();
+            context.State.Jump.CoyoteTimer.Cancel();
+            context.State.Jump.JumpsLeft = context.Data.Jump.Amount;
         }
 
         public override void Process()
@@ -24,20 +24,20 @@ namespace Game.Player.Movement.States
             Vector3 wishDir = context.WishDir;
 
             // Get current velocity
-            Vector3 velocity = new Vector3(context.State.Velocity.x, 0f, context.State.Velocity.z);
+            Vector3 velocity = new Vector3(context.State.Kinematics.Velocity.x, 0f, context.State.Kinematics.Velocity.z);
 
             // Apply friction and acceleration
-            velocity = PlayerMovement.ApplyFriction(velocity, context.Data.GroundFriction, context.Data.StopSpeed, Time.fixedDeltaTime);
-            
+            velocity = MovementMath.ApplyFriction(velocity, context.Data.Ground.Friction, context.Data.Ground.StopSpeed, Time.fixedDeltaTime);
+
             //Calculate target speed
-            float targetSpeed = context.Input.Sprint ? context.Data.RunSpeed : context.Data.WalkSpeed;
-            targetSpeed = context.Body.Stance == Stance.Standing ? targetSpeed : context.Data.CrouchSpeed;
+            float targetSpeed = context.Input.SprintHeld ? context.Data.Ground.RunSpeed : context.Data.Ground.WalkSpeed;
+            targetSpeed = context.Body.Stance == Stance.Standing ? targetSpeed : context.Data.Ground.CrouchSpeed;
             targetSpeed *= wishDir.magnitude;
 
-            velocity = PlayerMovement.Accelerate(velocity, wishDir, targetSpeed, context.Data.GroundAcceleration, Time.fixedDeltaTime);
+            velocity = MovementMath.Accelerate(velocity, wishDir, targetSpeed, context.Data.Ground.Acceleration, Time.fixedDeltaTime);
 
             // Apply new velocity to state
-            context.State.Velocity = velocity;
+            context.State.Kinematics.Velocity = velocity;
         }
     }
 }

@@ -37,7 +37,7 @@ namespace ECM2
                         _triangles16.AddRange(_scratchBuffer16);
                     }
                 }
-                
+
                 sharedMesh.GetVertices(_vertices);
 
                 v0 = _vertices[_triangles16[inHit.triangleIndex * 3 + 0]];
@@ -60,7 +60,7 @@ namespace ECM2
                         _triangles32.AddRange(_scratchBuffer32);
                     }
                 }
-                
+
                 sharedMesh.GetVertices(_vertices);
 
                 v0 = _vertices[_triangles32[inHit.triangleIndex * 3 + 0]];
@@ -78,7 +78,7 @@ namespace ECM2
             Vector3 v = p2 - p0;
 
             Vector3 worldNormal = Vector3.Cross(u, v).normalized;
-            
+
             if (Vector3.Dot(worldNormal, inHit.normal) < 0.0f)
                 worldNormal = Vector3.Cross(v, u).normalized;
 
