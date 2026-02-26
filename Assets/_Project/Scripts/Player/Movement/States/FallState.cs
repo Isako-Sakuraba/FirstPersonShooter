@@ -28,7 +28,7 @@ namespace Game.Movement.States
             float wishSpeed = context.Data.Air.Speed * wishDir.magnitude;
             wishSpeed = Mathf.Min(wishSpeed, context.Data.Air.AccelerationCap);
 
-            velocity = MovementMath.Accelerate(velocity, wishDir, wishSpeed, context.Data.Ground.Acceleration, Time.fixedDeltaTime);
+            velocity = MovementMath.Accelerate(velocity, wishDir, wishSpeed, context.Data.Air.Acceleration, Time.fixedDeltaTime);
 
             // Apply new velocity to state
             context.State.Kinematics.Velocity.x = velocity.x;
