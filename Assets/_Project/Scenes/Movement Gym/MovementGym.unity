@@ -42652,6 +42652,7 @@ GameObject:
   - component: {fileID: 1863778753}
   - component: {fileID: 1863778754}
   - component: {fileID: 1863778755}
+  - component: {fileID: 1863778756}
   m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
@@ -42736,6 +42737,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Input.PlayerLocomotionInputSource
   _target: {fileID: 145355636}
+--- !u!114 &1863778756
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1863778751}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 584b9eb71603f7d498527d1c604022cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Experimental.NoclipAbility
+  _controller: {fileID: 145355636}
+  _motor: {fileID: 145355632}
+  _look: {fileID: 150778921}
+  _fastSpeed: 20
+  _normalSpeed: 6
+  _verticalSpeed: 3
 --- !u!1 &1870241906
 GameObject:
   m_ObjectHideFlags: 0
@@ -46546,6 +46565,7 @@ MonoBehaviour:
   _mouseDeltaAction: {fileID: -5630151704836100654, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   _jumpAction: {fileID: -2099379676528639254, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   _interactAction: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  _noclipAction: {fileID: 5604526568598378960, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!4 &2138921813
 Transform:
   m_ObjectHideFlags: 0

@@ -116,7 +116,7 @@ namespace Game.Movement
             machine.AddTransition(LMS.Wall, LMS.Grounded, toGround);
             machine.AddTransition(LMS.Wall, LMS.Air, wallToFall);
 
-            // Jump transitions
+            // JumpPressed transitions
 
             machine.AddTransition(LMS.Jump, LMS.Air, trueTrans);
 

@@ -9,9 +9,10 @@ namespace Game.Input
         [SerializeField] private LocomotionController _target;
 
         public Vector2 Move => _inputService.Move;
-        public bool JumpPressed => _inputService.Jump;
+        public bool JumpPressed => _inputService.JumpPressed;
         public bool SprintHeld => _inputService.Sprint;
         public bool CrouchHeld => _inputService.Crouch;
+        public bool JumpHeld => _inputService.JumpHeld;
 
         private InputService _inputService;
 
