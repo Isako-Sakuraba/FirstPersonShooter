@@ -1,5 +1,4 @@
 using Game.Movement.API.Requests;
-using Game.Player.Movement;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Splines;

@@ -2,7 +2,7 @@ using Game.Movement;
 using Game.Movement.API;
 using UnityEngine;
 
-namespace Game.Player.Experimental
+namespace Game.Experimental
 {
     public class ExperimentalHeadRotation : MonoBehaviour
     {

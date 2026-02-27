@@ -1,9 +1,8 @@
 using Game.Movement;
-using Game.Movement.Player;
 using PrimeTween;
 using UnityEngine;
 
-namespace Game.Player.Experimental
+namespace Game.Experimental
 {
     public class ExperimentalHeadHeightChanger : MonoBehaviour
     {

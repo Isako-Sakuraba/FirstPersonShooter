@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: efc46f5b87750c6448081ebbcaacbe8b, type: 3}
-  m_Name: DefaultMovementData
+  m_Name: PlayerMovementData
   m_EditorClassIdentifier: Assembly-CSharp::Game.Data.Movement.MovementConfig
   Ground:
     WalkSpeed: 6
