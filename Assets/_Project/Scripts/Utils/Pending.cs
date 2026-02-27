@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace Game.Movement
+namespace Game.Utils
 {
     public struct Pending<T>
     {

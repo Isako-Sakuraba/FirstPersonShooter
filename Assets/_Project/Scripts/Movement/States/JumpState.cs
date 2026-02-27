@@ -1,4 +1,4 @@
-using UnityEngine;
+using Game.Utils;
 
 namespace Game.Movement.States
 {

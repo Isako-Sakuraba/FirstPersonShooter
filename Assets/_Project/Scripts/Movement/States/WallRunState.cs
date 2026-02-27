@@ -1,4 +1,6 @@
+using Game.Utils;
 using UnityEngine;
+
 namespace Game.Movement.States
 {
     public class WallRunState : LocomotionStateBase
