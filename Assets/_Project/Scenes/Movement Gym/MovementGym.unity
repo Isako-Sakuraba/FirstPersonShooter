@@ -42651,6 +42651,7 @@ GameObject:
   - component: {fileID: 1863778752}
   - component: {fileID: 1863778753}
   - component: {fileID: 1863778754}
+  - component: {fileID: 1863778755}
   m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
@@ -42722,6 +42723,19 @@ MonoBehaviour:
     Color: {r: 0, g: 0, b: 0.5450981, a: 1}
     Enabled: 1
     Size: 1
+--- !u!114 &1863778755
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1863778751}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6831ec1679ca9f04394aa8cd708241cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Input.PlayerLocomotionInputSource
+  _target: {fileID: 145355636}
 --- !u!1 &1870241906
 GameObject:
   m_ObjectHideFlags: 0

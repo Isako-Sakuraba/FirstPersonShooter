@@ -5,11 +5,10 @@ using Game.Movement.API.Requests;
 using System;
 using UnityEngine;
 
-// TODO: change the namespace to something more appropriate
-namespace Game.Movement.Player
+namespace Game.Movement
 {
     [RequireComponent(typeof(CharacterMovement))]
-    public class PlayerController : MonoBehaviour,
+    public class LocomotionController : MonoBehaviour,
         ILocomotionInfo,
         IRailAttachable
     {
@@ -27,7 +26,7 @@ namespace Game.Movement.Player
 
         private LocomotionStateMachine _machine;
 
-        private PlayerInputSource _inputSource;
+        private ILocomotionInputSource _inputSource;
 
         // Exposable fields
         private LocomotionSnapshot _snapshot;
@@ -59,6 +58,11 @@ namespace Game.Movement.Player
 
         public event Action<Stance, float> OnStanceChanged;
 
+        public void Initialize(ILocomotionInputSource inputSource)
+        {
+            _inputSource = inputSource;
+        }
+
         private void Awake()
         {
             _motor = GetComponent<CharacterMovement>();
@@ -79,8 +83,6 @@ namespace Game.Movement.Player
                 _input,
                 _state
             );
-
-            _inputSource = new PlayerInputSource();
 
             _context.InitializeTimers();
 
@@ -103,8 +105,8 @@ namespace Game.Movement.Player
 
         private void Update()
         {
-            _inputSource.UpdateFromService();
-            _input.UpdateFrom(_inputSource);
+            if (_inputSource != null)
+                _input.UpdateFrom(_inputSource);
             _context.RecalculateWishDir();
         }
 

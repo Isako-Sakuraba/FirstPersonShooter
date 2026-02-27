@@ -7,7 +7,7 @@ namespace Game.Player.Experimental
 {
     public class ExperimentalHeadHeightChanger : MonoBehaviour
     {
-        [SerializeField] private PlayerController _player;
+        [SerializeField] private LocomotionController _player;
         [SerializeField] private float _topOffset = 0.2f;
         [SerializeField] private float _duration = 0.2f;
         [SerializeField] private Ease _ease = Ease.OutBounce;

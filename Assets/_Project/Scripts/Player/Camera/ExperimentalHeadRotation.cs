@@ -1,12 +1,12 @@
+using Game.Movement;
 using Game.Movement.API;
-using Game.Movement.Player;
 using UnityEngine;
 
 namespace Game.Player.Experimental
 {
     public class ExperimentalHeadRotation : MonoBehaviour
     {
-        [SerializeField] private PlayerController _player;
+        [SerializeField] private LocomotionController _player;
         [SerializeField] private Transform _target;
 
         [Header("Lean")]

@@ -6,7 +6,7 @@ namespace Game.Movement.Debugging
 {
     public class LocomotionGUIDebug : MonoBehaviour
     {
-        [SerializeField] private PlayerController _target;
+        [SerializeField] private LocomotionController _target;
         [SerializeField] private float _sizeMultiplier = 2f;
         [SerializeField] private DebugProperty _debugVelocity = new DebugProperty(Color.red, true, 1f);
         [SerializeField] private DebugProperty _debugState = new DebugProperty(Color.blue, true, 1f);
