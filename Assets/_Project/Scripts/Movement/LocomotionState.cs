@@ -22,7 +22,6 @@ namespace Game.Movement
             public int JumpsLeft;
             public CountdownTimer CoyoteTimer;
 
-            public bool HasPendingPayload;
             public Pending<JumpPayload> Payload;
         }
 

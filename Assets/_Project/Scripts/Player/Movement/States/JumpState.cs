@@ -17,7 +17,7 @@ namespace Game.Movement.States
             else if (payload.Kind == JumpKind.Wall)
                 height = context.Data.Wallrun.ExitJumpHeight;
 
-            context.State.Kinematics.Velocity.y = MovementMath.ToJumpForce(context.Data.Jump.Height, context.Data.Environment.Gravity);
+            context.State.Kinematics.Velocity.y = MovementMath.ToJumpForce(height, context.Data.Environment.Gravity);
 
             if (payload.Kind == JumpKind.Wall)
                 context.State.Kinematics.Velocity += payload.WallNormal * context.Data.Wallrun.ExitSeparationImpulse;
