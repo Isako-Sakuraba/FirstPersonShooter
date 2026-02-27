@@ -67,6 +67,7 @@ namespace Game.Experimental
             {
                 _motor.collisionLayers = _cachedLayers;
                 _controller.enabled = true;
+                _controller.Reset();
             }
         }
     }

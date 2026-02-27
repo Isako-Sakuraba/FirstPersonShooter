@@ -42754,7 +42754,7 @@ MonoBehaviour:
   _look: {fileID: 150778921}
   _fastSpeed: 20
   _normalSpeed: 6
-  _verticalSpeed: 3
+  _verticalSpeed: 4
 --- !u!1 &1870241906
 GameObject:
   m_ObjectHideFlags: 0

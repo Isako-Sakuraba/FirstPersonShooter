@@ -79,6 +79,23 @@ namespace Game.Movement
 
             _state.Kinematics.PreviousVelocity = oldVelocity;
         }
+
+        public void Reset()
+        {
+            _context.State.Kinematics.Velocity = Vector3.zero;
+
+            _machine.Reset();
+
+            _context.State.Rail.IsAttached = false;
+            _context.State.Rail.Spline = null;
+
+            _context.Input.ConsumeJumpBuffer();
+            _context.State.Jump.CoyoteTimer.Cancel();
+            _context.State.Wallrun.BeginCooldown.Cancel();
+            _context.State.Wallrun.DurationTimer.Cancel();
+
+            _sensors.Update();
+        }
     }
 
     public partial class LocomotionController
