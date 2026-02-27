@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Game.Movement.Debugging
 {
-    public class LocomotionGUIDebug : MonoBehaviour
+    public class LocomotionDebugGUI : MonoBehaviour
     {
         [SerializeField] private LocomotionController _target;
         [SerializeField] private float _sizeMultiplier = 2f;
