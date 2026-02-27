@@ -101,8 +101,8 @@ namespace Game.Movement
             // Any transitions (runtime)
             var jumpToAir = new Trans(context, ctx => ctx.Input.JumpBufferTimer.IsRunning && ctx.State.Jump.JumpsLeft > 0);
             var jumpTransition = new ATrans(jumpToAir, context, ctx => ctx.State.Jump.Payload.Set(new JumpPayload(JumpKind.Normal)));
-            machine.AddTransition(LMS.Grounded, LMS.Jump, jumpTransition);
-            machine.AddTransition(LMS.Air, LMS.Jump, jumpTransition);
+            machine.AddTransition(LMS.Grounded, LMS.Jump, jumpTransition, true);
+            machine.AddTransition(LMS.Air, LMS.Jump, jumpTransition, true);
             machine.AddTransition(LMS.Grounded, LMS.Air, coyoteTimeActionTrans);
             machine.AddTransition(LMS.Air, LMS.Grounded, toGround);
 
@@ -112,7 +112,7 @@ namespace Game.Movement
                 ctx => ctx.State.Jump.Payload.Set(new JumpPayload(JumpKind.Wall, ctx.State.Wallrun.LastWallNormal)));
             var wallToFall = new Trans(context, ctx => !ctx.Sensors.WallDetected);
             machine.AddTransition(LMS.Air, LMS.Wall, toWall);
-            machine.AddTransition(LMS.Wall, LMS.Jump, wallJumpTransition);
+            machine.AddTransition(LMS.Wall, LMS.Jump, wallJumpTransition, true);
             machine.AddTransition(LMS.Wall, LMS.Grounded, toGround);
             machine.AddTransition(LMS.Wall, LMS.Air, wallToFall);
 
@@ -129,7 +129,7 @@ namespace Game.Movement
             machine.AddAnyTransition(LMS.Rail, toRail);
 
             machine.AddTransition(LMS.Rail, LMS.Air, fromRailEnded);
-            machine.AddTransition(LMS.Rail, LMS.Jump, railJumpTransition);
+            machine.AddTransition(LMS.Rail, LMS.Jump, railJumpTransition, true);
         }
 
         private void CreateGroundedTransitions(LocomotionContext context)
