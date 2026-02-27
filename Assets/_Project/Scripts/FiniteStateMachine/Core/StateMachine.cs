@@ -7,6 +7,7 @@ namespace FiniteStateMachine.Core
     {
         public void RequestResettle();
         public string GetFullPath();
+        public void Reset();
     }
 
     public abstract partial class StateMachine<EStateId> : IState, IStateMachine
@@ -345,6 +346,11 @@ namespace FiniteStateMachine.Core
             var childPath = _currentNode.State.GetPath(_currentNode.Id);
             var name = GetType().Name;
             return $"{name}/{childPath}";
+        }
+
+        public void Reset()
+        {
+            ChangeState(DefaultState);
         }
     }
 }
