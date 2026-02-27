@@ -3,9 +3,9 @@ using UnityEngine;
 
 namespace Game.Movement.States
 {
-    public class FallState : LocomotionStateBase
+    public class AirState : LocomotionStateBase
     {
-        public FallState(LocomotionContext context) : base(context) { }
+        public AirState(LocomotionContext context) : base(context) { }
 
         public override void Process()
         {

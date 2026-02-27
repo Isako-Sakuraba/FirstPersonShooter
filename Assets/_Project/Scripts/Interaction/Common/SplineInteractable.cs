@@ -23,7 +23,7 @@ namespace Game.Interaction
             if (_attachable == null)
                 return true;
 
-            return !_attachable.IsOnRail;
+            return !_attachable.IsAttachedToRail;
         }
 
         public Vector3 GetInteractionPoint(in InteractionContext context)
@@ -64,7 +64,7 @@ namespace Game.Interaction
             // nearest + t are in spline local space
             SplineUtility.GetNearestPoint(_splineContainer.Spline, localQuery, out float3 localNearest, out float t);
 
-            if (!_attachable.IsOnRail)
+            if (!_attachable.IsAttachedToRail)
                 _attachable.TryAttachRail(new RailAttachRequest(_splineContainer, t));
         }
     }

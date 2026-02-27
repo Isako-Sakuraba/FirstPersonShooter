@@ -18,7 +18,7 @@ namespace Game.Experimental
         private Quaternion _baseLocalRot;
         private float _currentRoll;
 
-        private ILocomotionInfo _info;
+        private IReadOnlyLocomotionController _info;
 
         private void Awake()
         {

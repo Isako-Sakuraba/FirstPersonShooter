@@ -11,7 +11,7 @@ namespace Game.Movement
     public enum LocomotionMachineState
     {
         Grounded,
-        Fall,
+        Air,
         Jump,
         Wall,
         Rail
@@ -45,13 +45,13 @@ namespace Game.Movement
             var moveState = new MoveState(context);
             var slideState = new SlideState(context);
             var jumpState = new JumpState(context);
-            var fallState = new FallState(context);
-            var wallRunState = new WallRunState(context);
+            var fallState = new AirState(context);
+            var wallRunState = new WallState(context);
             var railState = new RailState(context);
 
             // Register HFSMs
             machine.AddState(LMS.Grounded, groundedFSM);
-            machine.AddState(LMS.Fall, fallState);
+            machine.AddState(LMS.Air, fallState);
             machine.AddState(LMS.Jump, jumpState);
             machine.AddState(LMS.Wall, wallRunState);
             machine.AddState(LMS.Rail, railState);
@@ -64,7 +64,7 @@ namespace Game.Movement
             CreateRootTransitions(context);
             CreateGroundedTransitions(context);
 
-            machine.Run(LMS.Fall);
+            machine.Run(LMS.Air);
         }
 
         private void CreateRootTransitions(
@@ -95,30 +95,30 @@ namespace Game.Movement
             var trueTrans = new LambdaTransition(() => true);
 
             // Enter transitions (initial selection)
-            machine.AddEnterTransition(LMS.Fall, toAir);
+            machine.AddEnterTransition(LMS.Air, toAir);
             machine.AddEnterTransition(LMS.Grounded, toGround);
 
             // Any transitions (runtime)
             var jumpToAir = new Trans(context, ctx => ctx.Input.JumpBufferTimer.IsRunning && ctx.State.Jump.JumpsLeft > 0);
             var jumpTransition = new ATrans(jumpToAir, context, ctx => ctx.State.Jump.Payload.Set(new JumpPayload(JumpKind.Normal)));
             machine.AddTransition(LMS.Grounded, LMS.Jump, jumpTransition);
-            machine.AddTransition(LMS.Fall, LMS.Jump, jumpTransition);
-            machine.AddTransition(LMS.Grounded, LMS.Fall, coyoteTimeActionTrans);
-            machine.AddTransition(LMS.Fall, LMS.Grounded, toGround);
+            machine.AddTransition(LMS.Air, LMS.Jump, jumpTransition);
+            machine.AddTransition(LMS.Grounded, LMS.Air, coyoteTimeActionTrans);
+            machine.AddTransition(LMS.Air, LMS.Grounded, toGround);
 
             // Wallrun transition
             var wallToJump = new Trans(context, ctx => ctx.Input.JumpBufferTimer.IsRunning && ctx.State.Jump.JumpsLeft > 0);
             var wallJumpTransition = new ATrans(wallToJump, context, 
                 ctx => ctx.State.Jump.Payload.Set(new JumpPayload(JumpKind.Wall, ctx.State.Wallrun.LastWallNormal)));
             var wallToFall = new Trans(context, ctx => !ctx.Sensors.WallDetected);
-            machine.AddTransition(LMS.Fall, LMS.Wall, toWall);
+            machine.AddTransition(LMS.Air, LMS.Wall, toWall);
             machine.AddTransition(LMS.Wall, LMS.Jump, wallJumpTransition);
             machine.AddTransition(LMS.Wall, LMS.Grounded, toGround);
-            machine.AddTransition(LMS.Wall, LMS.Fall, wallToFall);
+            machine.AddTransition(LMS.Wall, LMS.Air, wallToFall);
 
             // Jump transitions
 
-            machine.AddTransition(LMS.Jump, LMS.Fall, trueTrans);
+            machine.AddTransition(LMS.Jump, LMS.Air, trueTrans);
 
             var toRail = new Trans(context, ctx => ctx.State.Rail.AttachmentPayload.IsPresent);
             var fromRailToJump = new Trans(context, ctx => ctx.Input.JumpBufferTimer.IsRunning);
@@ -128,7 +128,7 @@ namespace Game.Movement
 
             machine.AddAnyTransition(LMS.Rail, toRail);
 
-            machine.AddTransition(LMS.Rail, LMS.Fall, fromRailEnded);
+            machine.AddTransition(LMS.Rail, LMS.Air, fromRailEnded);
             machine.AddTransition(LMS.Rail, LMS.Jump, railJumpTransition);
         }
 
@@ -167,7 +167,7 @@ namespace Game.Movement
             machine.AddTransition(GroundedState.Move, GroundedState.Slide, toSlide);
             machine.AddTransition(GroundedState.Slide, GroundedState.Move, toMove);
 
-            // Note: Slide -> Fall is handled by root transitions (jump press or !grounded).
+            // Note: Slide -> Air is handled by root transitions (jump press or !grounded).
         }
     }
 }

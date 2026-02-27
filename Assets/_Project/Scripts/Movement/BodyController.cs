@@ -67,5 +67,7 @@ namespace Game.Movement
     {
         public Stance Stance { get; }
         public float Height { get; }
+
+        public event Action<Stance> OnStanceChanged;
     }
 }

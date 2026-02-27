@@ -19,6 +19,6 @@ namespace Game.Movement.API.Requests
     {
         bool TryAttachRail(in RailAttachRequest request);
         void DetachRail();
-        bool IsOnRail { get; } // optional for interact logic
+        bool IsAttachedToRail { get; }
     }
 }

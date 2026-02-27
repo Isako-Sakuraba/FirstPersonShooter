@@ -13,24 +13,27 @@ namespace Game.Experimental
 
         private Tween _tween;
 
+        private IBodyState _bodyState;
+
         private void Start()
         {
-            OnStanceChanged(_player.Snapshot.Stance, _player.Snapshot.Height);
+            _bodyState = _player.Body;
+            OnStanceChanged(_player.Body.Stance);
         }
 
         private void OnEnable()
         {
-            _player.OnStanceChanged += OnStanceChanged;
+            _player.Body.OnStanceChanged += OnStanceChanged;
         }
 
         private void OnDisable()
         {
-            _player.OnStanceChanged -= OnStanceChanged;
+            _player.Body.OnStanceChanged -= OnStanceChanged;
         }
 
-        private void OnStanceChanged(Stance stance, float height)
+        private void OnStanceChanged(Stance stance)
         {
-            float target = height - _topOffset;
+            float target = _bodyState.Height - _topOffset;
             Vector3 offset = new Vector3(0f, target, 0f);
 
             _tween.Stop();

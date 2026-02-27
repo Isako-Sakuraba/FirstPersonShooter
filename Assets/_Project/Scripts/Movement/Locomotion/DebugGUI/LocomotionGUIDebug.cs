@@ -31,12 +31,12 @@ namespace Game.Movement.Debugging
             {
                 GUI.color = _debugState.Color;
                 GUI.matrix = Matrix4x4.TRS(pos, rot, scale * _debugState.Size);
-                GUILayout.Label($"State Machine State: {_target.Snapshot.MachineState}");
-                GUILayout.Label($"Stance: {_target.Snapshot.Stance}");
-                GUILayout.Label($"Grounded: {_target.Snapshot.IsGrounded}");
+                GUILayout.Label($"State Machine State: {_target.GetMachinePath()}");
+                GUILayout.Label($"Stance: {_target.Body.Stance}");
+                GUILayout.Label($"Grounded: {_target.IsGrounded}");
                 GUILayout.Label($"IsWallrunning: {_target.IsWallrunning}");
                 GUILayout.Label($"IsSliding: {_target.IsSliding}");
-                GUILayout.Label($"IsOnRail: {_target.IsOnRail}");
+                GUILayout.Label($"IsRailgrinding/Attached: {_target.IsRailgrinding}/{_target.IsAttachedToRail}");
             }
 
             // TODO: Add timers debug

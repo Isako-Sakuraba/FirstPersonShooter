@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Game.Movement.States
 {
-    public class WallRunState : LocomotionStateBase
+    public class WallState : LocomotionStateBase
     {
         private float _wallrunTimer;
         private Vector3 _wallNormal;
@@ -11,7 +11,7 @@ namespace Game.Movement.States
 
         public bool WallRunTimerEnded => _wallrunTimer <= 0f;
 
-        public WallRunState(LocomotionContext context) : base(context) { }
+        public WallState(LocomotionContext context) : base(context) { }
 
         public override void Enter()
         {

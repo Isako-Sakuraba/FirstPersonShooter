@@ -2,15 +2,12 @@ using ECM2;
 using Game.Data.Movement;
 using Game.Movement.API;
 using Game.Movement.API.Requests;
-using System;
 using UnityEngine;
 
 namespace Game.Movement
 {
     [RequireComponent(typeof(CharacterMovement))]
-    public class LocomotionController : MonoBehaviour,
-        ILocomotionInfo,
-        IRailAttachable
+    public partial class LocomotionController : MonoBehaviour
     {
         [SerializeField] private MovementConfig _movementData;
         [SerializeField] private BodyConfig _bodyData;
@@ -27,36 +24,6 @@ namespace Game.Movement
         private LocomotionStateMachine _machine;
 
         private ILocomotionInputSource _inputSource;
-
-        // Exposable fields
-        private LocomotionSnapshot _snapshot;
-        public LocomotionSnapshot Snapshot => _snapshot;
-
-        public IBodyState Body => _body;
-
-        #region ILocomotionInfo impl
-        public Vector3 Forward => _orientation.Forward;
-
-        public Vector3 Right => _orientation.Right;
-
-        public Vector3 Velocity => _state.Kinematics.Velocity;
-
-        public bool IsSliding => _machine.CurrentState == LocomotionMachineState.Grounded
-                            && _machine.GroundedState == GroundedState.Slide;
-
-        public bool IsWallrunning => _machine.CurrentState == LocomotionMachineState.Wall;
-
-        public bool IsGrounded => _context.IsGrounded;
-
-        public bool HasWallContact => _sensors.WallDetected;
-
-        public Vector3 WallNormal => _sensors.WallCollision.normal;
-
-        #endregion
-
-        public bool IsOnRail => _state.Rail.IsAttached;
-
-        public event Action<Stance, float> OnStanceChanged;
 
         public void Initialize(ILocomotionInputSource inputSource)
         {
@@ -88,19 +55,6 @@ namespace Game.Movement
 
             _machine = new LocomotionStateMachine(_context);
             _machine.CreateDefault(_context);
-
-
-            UpdateSnapshot();
-        }
-
-        private void OnEnable()
-        {
-            _body.OnStanceChanged += HandleStanceChanged;
-        }
-
-        private void OnDisable()
-        {
-            _body.OnStanceChanged -= HandleStanceChanged;
         }
 
         private void Update()
@@ -124,28 +78,40 @@ namespace Game.Movement
             _state.Kinematics.Velocity = _motor.velocity;
 
             _state.Kinematics.PreviousVelocity = oldVelocity;
-
-            UpdateSnapshot();
         }
+    }
 
-        private void UpdateSnapshot()
-        {
-            _snapshot = new LocomotionSnapshot(
-                _context.State.Kinematics.Velocity,
-                _context.IsGrounded,
-                _context.Body.Stance,
-                _machine.CurrentState,
-                _body.Height
-            );
-        }
+    public partial class LocomotionController
+        : IReadOnlyLocomotionController
+    {
+        public Vector3 Forward => _context.Orientation.Forward;
+        public Vector3 Right => _context.Orientation.Right;
 
-        private void HandleStanceChanged(Stance stance)
-        {
-            OnStanceChanged.Invoke(stance, _body.Height);
-        }
+        public IBodyState Body => _body;
 
-        #region IRailAttachable impl
+        public Vector3 Velocity => _state.Kinematics.Velocity;
 
+        public Vector3 GroundNormal => _motor.groundNormal;
+
+        public bool IsGrounded => _motor.isGrounded;
+
+        public LocomotionMachineState MachineState => _machine.CurrentState;
+        public bool IsSliding => _machine.CurrentState == LocomotionMachineState.Grounded && _machine.GroundedState == GroundedState.Slide;
+        public bool IsWallrunning => _machine.CurrentState == LocomotionMachineState.Wall;
+        public bool IsRailgrinding => _machine.CurrentState == LocomotionMachineState.Rail;
+
+        public bool HasWallContact => _context.Sensors.WallDetected;
+
+        public Vector3 WallNormal => _context.Sensors.WallCollision.normal;
+
+        public string GetMachinePath()
+            => _machine.GetFullPath();
+    }
+
+    public partial class LocomotionController
+        : IRailAttachable
+    {
+        public bool IsAttachedToRail => _state.Rail.IsAttached;
 
         public bool TryAttachRail(in RailAttachRequest request)
         {
@@ -162,38 +128,6 @@ namespace Game.Movement
                 return;
 
             _state.Rail.DetachmentPayload.Set(new RailDetachPayload());
-        }
-        #endregion
-
-        public readonly struct LocomotionSnapshot
-        {
-            public readonly Vector3 Velocity;
-            public readonly bool IsGrounded;
-            public readonly Stance Stance;
-
-            // Movement mode if you track it (optional)
-            public readonly LocomotionMachineState MachineState;
-
-            // Camera-friendly values
-            public readonly float Height;       // or current collider height
-
-            public float HorizontalSpeed => new Vector2(Velocity.x, Velocity.z).magnitude;
-            public float VerticalSpeed => Velocity.y;
-
-            public LocomotionSnapshot(
-                Vector3 velocity,
-                bool isGrounded,
-                Stance stance,
-                LocomotionMachineState state,
-                float capsuleHeight
-            )
-            {
-                Velocity = velocity;
-                IsGrounded = isGrounded;
-                Stance = stance;
-                MachineState = state;
-                Height = capsuleHeight;
-            }
         }
     }
 }
