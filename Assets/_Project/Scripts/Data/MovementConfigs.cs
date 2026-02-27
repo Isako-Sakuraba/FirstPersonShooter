@@ -72,8 +72,21 @@ namespace Game.Data.Movement
     }
 
     [Serializable]
+    public class RailConfig
+    {
+        public float Speed = 38f;
+        public float Acceleration = 0.6f;
+        public float Drag = 0.1f;
+        public bool SnapPosition = true;
+        public float SnapPositionDelta = 0.0004f;
+        public float Gravity = -18f;
+        public bool AlwaysApplyGravity = true;
+    }
+
+    [Serializable]
     public class EnvironmentConfig
     {
         public float Gravity = -18f;
     }
+
 }

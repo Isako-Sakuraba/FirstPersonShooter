@@ -38,7 +38,11 @@ namespace Game.Movement
         {
             public bool IsAttached;
             public SplineContainer Spline;
+
+            // Tracking is still manual (not fully velocity-based)
             public float T;
+            public float Speed;
+
             public Pending<RailAttachPayload> AttachmentPayload;
             public Pending<RailDetachPayload> DetachmentPayload;
         }

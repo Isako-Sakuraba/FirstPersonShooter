@@ -53,5 +53,13 @@ MonoBehaviour:
     IncludedLayers:
       serializedVersion: 2
       m_Bits: 1
+  Rail:
+    Speed: 38
+    Acceleration: 0.6
+    Drag: 0.1
+    SnapPosition: 1
+    SnapPositionDelta: 0.0004
+    Gravity: -32
+    AlwaysApplyGravity: 0
   Environment:
     Gravity: -18

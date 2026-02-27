@@ -10,6 +10,7 @@ namespace Game.Data.Movement
         public JumpConfig Jump;
         public SlideConfig Slide;
         public WallrunConfig Wallrun;
+        public RailConfig Rail;
         public EnvironmentConfig Environment;
     }
 }

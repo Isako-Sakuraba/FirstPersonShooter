@@ -47,7 +47,7 @@ namespace Game.Movement
             var jumpState = new JumpState(context);
             var fallState = new FallState(context);
             var wallRunState = new WallRunState(context);
-            var railState = new RailgrindState(context);
+            var railState = new RailState(context);
 
             // Register HFSMs
             machine.AddState(LMS.Grounded, groundedFSM);
