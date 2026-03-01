@@ -12,6 +12,7 @@ namespace Game.Movement
         [SerializeField] private MovementConfig _movementData;
         [SerializeField] private BodyConfig _bodyData;
         [SerializeField] private CharacterOrientation _orientation;
+        [SerializeField] private Transform _pointer; //TODO: move somewhere else
 
         private CharacterMovement _motor;
 
@@ -39,12 +40,13 @@ namespace Game.Movement
             _input = new LocomotionInput();
 
             _body = new BodyController(_motor, _bodyData);
-            _sensors = new LocomotionSensors(_motor);
+            _sensors = new LocomotionSensors(_motor, _movementData, _pointer);
 
             _context = new LocomotionContext(
                 _movementData,
                 _motor,
                 _orientation,
+                _pointer,
                 _body,
                 _sensors,
                 _input,
@@ -69,6 +71,7 @@ namespace Game.Movement
             float dt = Time.fixedDeltaTime;
 
             _context.Sensors.Update();
+            Debug.Log($"Pointer has hit: {_sensors.PointerHasHit}");
             _body.Update(_input.CrouchHeld ? Stance.Crouched : Stance.Standing);
 
             var oldVelocity = _state.Kinematics.Velocity;
@@ -145,6 +148,29 @@ namespace Game.Movement
                 return;
 
             _state.Rail.DetachmentPayload.Set(new RailDetachPayload());
+        }
+    }
+
+    public partial class LocomotionController
+    : IGrappleAttachable
+    {
+        public bool IsGrappleAttached => _state.Grapple.IsGrappled;
+
+        public bool TryGrappleAttach(in GrappleAttachRequest request)
+        {
+            if (_state.Grapple.IsGrappled || _state.Grapple.AttachmentPayload.IsPresent)
+                return false;
+
+            _state.Grapple.AttachmentPayload.Set(new GrappleAttachPayload(request.type, request.point));
+            return true;
+        }
+
+        public void DetachGrapple()
+        {
+            if (!_state.Grapple.IsGrappled || _state.Grapple.DetachmentPayload.IsPresent)
+                return;
+
+            _state.Grapple.DetachmentPayload.Set(new GrappleDetachPayload());
         }
     }
 }

@@ -89,4 +89,12 @@ namespace Game.Data.Movement
         public float Gravity = -18f;
     }
 
+    [Serializable]
+    public class GrappleConfig
+    {
+        public float Gravity = -18f;
+        public float Drag = 0.5f;
+        public float Distance = 100f;
+        public LayerMask GrappableLayers;
+    }
 }

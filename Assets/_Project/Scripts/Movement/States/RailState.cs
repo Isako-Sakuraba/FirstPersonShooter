@@ -25,7 +25,7 @@ namespace Game.Movement.States
             _railSpline = payload.Spline;
             _length = Mathf.Max(_railSpline.CalculateLength(), 1e-4f);
 
-            // Snap to nearest spline point from motor position (robust attach)
+            // Snap to nearest spline point from motor point (robust attach)
             float3 localQuery = _railSpline.transform.InverseTransformPoint(context.Motor.transform.position);
             SplineUtility.GetNearestPoint(_railSpline.Spline, localQuery, out _, out float t);
 

@@ -29,7 +29,7 @@ namespace Game.Interaction
         public Vector3 GetInteractionPoint(in InteractionContext context)
         {
             // World -> local (important)
-            float3 localQuery = _splineContainer.transform.InverseTransformPoint(context.Position);
+            float3 localQuery = _splineContainer.transform.InverseTransformPoint(context.Position + context.Forward);
 
             // nearest + t are in spline local space
             SplineUtility.GetNearestPoint(_splineContainer.Spline, localQuery, out float3 localNearest, out float t);
@@ -40,7 +40,7 @@ namespace Game.Interaction
 
         public DisplayInfo GetInteractionPointDisplay(in InteractionContext context)
         {
-            float3 localQuery = _splineContainer.transform.InverseTransformPoint(context.Position);
+            float3 localQuery = _splineContainer.transform.InverseTransformPoint(context.Position + context.Forward);
 
             SplineUtility.GetNearestPoint(_splineContainer.Spline, localQuery, out float3 localNearest, out float t);
 
@@ -59,7 +59,7 @@ namespace Game.Interaction
             _attachable = attachable;
 
             // World -> local (important)
-            float3 localQuery = _splineContainer.transform.InverseTransformPoint(context.Position);
+            float3 localQuery = _splineContainer.transform.InverseTransformPoint(context.Position + context.Forward);
 
             // nearest + t are in spline local space
             SplineUtility.GetNearestPoint(_splineContainer.Spline, localQuery, out float3 localNearest, out float t);

@@ -13,6 +13,7 @@ namespace Game.Input
         public bool SprintHeld => _inputService.Sprint;
         public bool CrouchHeld => _inputService.Crouch;
         public bool JumpHeld => _inputService.JumpHeld;
+        public bool FirePressed => _inputService.FirePressed;
 
         private InputService _inputService;
 

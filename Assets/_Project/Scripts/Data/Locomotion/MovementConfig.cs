@@ -11,6 +11,7 @@ namespace Game.Data.Movement
         public SlideConfig Slide;
         public WallrunConfig Wallrun;
         public RailConfig Rail;
+        public GrappleConfig Grapple;
         public EnvironmentConfig Environment;
     }
 }
