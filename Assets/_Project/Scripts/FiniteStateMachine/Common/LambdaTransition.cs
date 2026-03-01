@@ -8,7 +8,7 @@ namespace FiniteStateMachine.Common
         public delegate bool LambdaCondition();
 
         public readonly LambdaCondition Condition;
-        
+
         public LambdaTransition(LambdaCondition condition)
         {
             Condition = condition;
