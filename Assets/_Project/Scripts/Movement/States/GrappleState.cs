@@ -11,7 +11,7 @@ namespace Game.Movement.States
         }
 
         private float _ropeRestLength;
-        private float _minLength = 2f ;
+        private float _minLength = 2f;
         private float _maxLength = 6f;
 
         private Vector3 _lastPivot = Vector3.zero;
@@ -28,6 +28,8 @@ namespace Game.Movement.States
             _maxLength = payload.MaxLength;
             var pivot = GetWorldPivot(payload.LocalPoint, payload.Target);
             _ropeRestLength = (pivot - context.Motor.transform.position).magnitude;
+            context.State.Grapple.CurrentLength = _ropeRestLength;
+            context.State.Grapple.MaxLength = _maxLength;
             _lastPivot = pivot;
             context.State.Jump.JumpsLeft = context.Data.Jump.Amount;
             context.State.Grapple.OnGrappleStatusChanged.Invoke(true);
@@ -46,34 +48,34 @@ namespace Game.Movement.States
             var gravity = context.Data.Grapple.Gravity;
             var drag = context.Data.Grapple.Drag;
 
-            var toPivotDirection = pivot - position;
-            toPivotDirection.Normalize();
+            //var toPivotDirection = pivot - position;
+            //toPivotDirection.Normalize();
 
-            var lookDot = Vector3.Dot(context.Orientation.Forward, toPivotDirection);
-            bool isLookMode = lookDot > 0.8f || lookDot < -0.8f;
+            //var lookDot = Vector3.Dot(context.Orientation.Forward, toPivotDirection);
+            //bool isLookMode = lookDot > 0.8f || lookDot < -0.8f;
 
-            float lengthChange = -context.Input.Move.y * 4f * dt;
-            float nextRestLength = Mathf.Clamp(_ropeRestLength + lengthChange, _minLength, _maxLength);
+            //float lengthChange = -context.Input.Move.y * 4f * dt;
+            //float nextRestLength = Mathf.Clamp(_ropeRestLength + lengthChange, _minLength, _maxLength);
 
-            float rate = (nextRestLength - _ropeRestLength) * invDt;
+            //float rate = (nextRestLength - _ropeRestLength) * invDt;
 
-            if (!isLookMode)
-                rate = 0f;
-            else
-                _ropeRestLength = nextRestLength;
+            //if (!isLookMode)
+            //    rate = 0f;
+            //else
+            //    _ropeRestLength = nextRestLength;
 
             MovementMath.StepRopeSpring3D(
                 pivot,
                 pivotVelocity,
                 pivotAccel,
                 _ropeRestLength,
-                rate,
+                0f,
                 0.5f,
                 200f,
                 10f,
                 gravity * Vector3.up,
                 dt,
-                isLookMode ? Vector3.zero : context.WishDir,
+                context.WishDir,
                 10,
                 drag,
                 position,
@@ -84,6 +86,7 @@ namespace Game.Movement.States
 
             //_position = nextPosition;
             context.State.Kinematics.Velocity = nextVelocity;
+            context.State.Grapple.CurrentLength = _ropeRestLength;
 
             _lastPivot = pivot;
             _prevPivotVelocity = pivotVelocity;

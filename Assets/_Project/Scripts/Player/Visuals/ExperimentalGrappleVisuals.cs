@@ -5,7 +5,8 @@ namespace Game.Experimental
 {
     public class ExperimentalGrappleVisuals : MonoBehaviour
     {
-        [SerializeField] private LineRenderer _line;
+        [SerializeField] private LineRenderer _ropePivot;
+        [SerializeField] private VerletRope _ropePlayer;
         [SerializeField] private LocomotionController _controller;
         [SerializeField] private Transform _playerVisuals;
 
@@ -13,7 +14,10 @@ namespace Game.Experimental
 
         private void Awake()
         {
-            GrappleDetached();
+            GrappleDetached(_playerVisuals.position);
+            _ropePivot.useWorldSpace = true;
+            _ropePivot.positionCount = 2;
+            _ropePlayer.TryPin(0);
         }
 
         private void OnEnable()
@@ -33,20 +37,28 @@ namespace Game.Experimental
             if (!track)
                 return;
 
-            _line.SetPosition(0, _playerVisuals.position);
-            _line.SetPosition(1, _controller.PivotWorldPoint);
+            var pivot = _controller.PivotWorldPoint;
+            var player = _playerVisuals.position;
+            _ropePivot.SetPosition(0, pivot);
+            _ropePivot.SetPosition(1, player);
+            _ropePlayer.UpdateVisuals();
+            _ropePlayer.SetPosition(0, in player, updateRenderer: true);
         }
 
-        private void GrappleDetached()
+        private void GrappleDetached(Vector3 player)
         {
             track = false;
-            _line.SetPosition(0, _playerVisuals.position);
-            _line.SetPosition(1, _playerVisuals.position);
+            _ropePivot.enabled = false;
+            _ropePlayer.enabled = false;
         }
 
         private void GrappleAttached()
         {
             track = true;
+            _ropePivot.enabled = true;
+            _ropePlayer.enabled = true;
+            _ropePlayer.RopeLength = _controller.MaxLength - _controller.CurrentLength;
+            _ropePlayer.SegmentsCount = Mathf.Max(VerletRope.CalculateSegmentCount(_ropePlayer.RopeLength, 0.5f), 3);
         }
     }
 }

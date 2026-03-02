@@ -1,13 +1,15 @@
 using Game.Interaction;
 using Game.Movement.API.Requests;
+using System;
 using UnityEngine;
-
+using UnityEngine.Rendering.Universal;
 using DisplayInfo = Game.Interaction.DisplayInfo;
 
 namespace Game.Experimental
 {
     public class ExperimentalRope : MonoBehaviour, IInteractable, IInteractionDisplay
     {
+        [SerializeField] private VerletRope _rope;
         [SerializeField] private Transform _pivot;
         [SerializeField] private float _length = 4f;
         [SerializeField] private CapsuleCollider _capsule;
@@ -17,8 +19,8 @@ namespace Game.Experimental
         public Vector3 Top => _pivot.position;
         public Vector3 Bottom => _pivot.position - transform.up * _length;
 
-        private EntityId _playerId;
         private IGrappleAttachable _attachable;
+        private bool _attached = false;
 
         private void Awake()
         {
@@ -28,10 +30,7 @@ namespace Game.Experimental
 
         public bool CanInteract(in InteractionContext context)
         {
-            if (_attachable == null)
-                return true;
-
-            return !_attachable.IsGrappleAttached;
+            return !_attached;
         }
 
         public Vector3 GetInteractionPoint(in InteractionContext context)
@@ -55,11 +54,55 @@ namespace Game.Experimental
 
             var point = transform.InverseTransformPoint(_pivot.position);
             var sent = attachable.TryGrappleAttach(new GrappleAttachRequest(GrappleType.Rope, point, transform, _length));
+
             if (sent)
             {
-                _playerId = context.Interactor.GetEntityId();
+                _rope.enabled = false;
+                _attached = true;
                 _attachable = attachable;
+                _attachable.OnGrappleDetached += GrappleDetached;
             }
+        }
+
+        private void GrappleDetached(Vector3 player)
+        {
+            _attachable.OnGrappleDetached -= GrappleDetached;
+            _rope.enabled = true;
+            _attached = false;
+
+            // Assume rope pivot is the rope object's transform.
+            // If your pivot is elsewhere, replace pivotPos accordingly.
+            Vector3 pivotPos = _pivot.position;
+            Vector3 playerPos = player;
+
+            Vector3 delta = playerPos - pivotPos;
+            float dist = delta.magnitude;
+
+            Debug.DrawRay(pivotPos, delta, Color.yellow, 10f);
+
+            // Avoid NaNs when player == pivot
+            Vector3 dir = dist > 1e-6f ? (delta / dist) : Vector3.forward;
+
+
+            int count = _rope.SegmentsCount;
+            float step = (dist) / (count - 1);
+
+            for (int i = 0; i < count; i++)
+            {
+                // Place point i at pivot + i * step along direction
+                Vector3 p = pivotPos + dir * (i * step);
+
+                // Optionally clamp so we don't go past the player
+                // (useful if rope length > distance pivot->player)
+                if (i > 0 && (p - pivotPos).sqrMagnitude > (playerPos - pivotPos).sqrMagnitude)
+                    p = playerPos;
+
+                // zeroVelocity = true so you don't inject velocity impulses
+                _rope.SetPosition(i, p, zeroVelocity: true, updateRenderer: true);
+            }
+
+            // Force the last point to be exactly at the player (common for grapples)
+            _rope.SetPosition(count - 1, playerPos, zeroVelocity: true, updateRenderer: true);
         }
 
         public static Vector3 GetClosestPointOnRope(Vector3 worldPos, Vector3 top, Vector3 bottom)
@@ -75,7 +118,7 @@ namespace Game.Experimental
             // Normalize the rope direction
             Vector3 ropeDirectionNormalized = ropeDirection / ropeLength;
 
-            // Vector from top to world position
+            // Vector from top to world currentPosition
             Vector3 topToWorld = worldPos - top;
 
             // Project worldPos onto the rope line (dot product gives the parameter t)

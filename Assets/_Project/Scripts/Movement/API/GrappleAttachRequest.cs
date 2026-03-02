@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Game.Movement.API.Requests
@@ -29,5 +30,6 @@ namespace Game.Movement.API.Requests
         bool TryGrappleAttach(in GrappleAttachRequest request);
         void DetachGrapple();
         bool IsGrappleAttached { get; }
+        public event Action<Vector3> OnGrappleDetached;
     }
 }

@@ -53,7 +53,7 @@ namespace Game.Player.Interaction
         {
             IInteractable nextFocused = null;
 
-            InteractionContext context = new InteractionContext(gameObject, _interactorForward.position, _interactorForward.forward, false);
+            InteractionContext context = new InteractionContext(_interactorForward.gameObject, _interactorForward.position, _interactorForward.forward, false);
             InteractionContext directContext = context.WithDirect(true);
 
             if (Physics.Raycast(_interactorForward.position, _interactorForward.forward, out var hit, _interactionDistance, _interactionLayer))

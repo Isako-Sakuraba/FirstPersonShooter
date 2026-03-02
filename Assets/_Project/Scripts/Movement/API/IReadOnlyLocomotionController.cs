@@ -28,8 +28,10 @@ namespace Game.Movement.API
         Vector3 WallNormal { get; }
 
         Vector3 PivotWorldPoint { get; }
+        float MaxLength { get; }
+        float CurrentLength { get; }
         event Action OnGrappleAttached;
-        event Action OnGrappleDetached;
+        event Action<Vector3> OnGrappleDetached;
 
         string GetMachinePath();
     }

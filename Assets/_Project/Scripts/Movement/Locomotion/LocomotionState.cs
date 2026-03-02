@@ -57,6 +57,8 @@ namespace Game.Movement
             public Vector3 LocalPoint;
             public Transform Target;
             public Vector3 WorldPoint;
+            public float CurrentLength;
+            public float MaxLength;
 
             public Action<bool> OnGrappleStatusChanged = delegate { };
 

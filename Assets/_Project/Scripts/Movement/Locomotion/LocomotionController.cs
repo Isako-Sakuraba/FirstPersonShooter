@@ -47,7 +47,7 @@ namespace Game.Movement
             if (attached)
                 OnGrappleAttached.Invoke();
             else
-                OnGrappleDetached.Invoke();
+                OnGrappleDetached.Invoke(transform.position);
         }
 
         private void Awake()
@@ -119,8 +119,7 @@ namespace Game.Movement
         }
     }
 
-    public partial class LocomotionController
-        : IReadOnlyLocomotionController
+    public partial class LocomotionController : IReadOnlyLocomotionController
     {
         public Vector3 Forward => _context.Orientation.ForwardFlat;
         public Vector3 Right => _context.Orientation.RightFlat;
@@ -139,22 +138,21 @@ namespace Game.Movement
         public bool IsRailgrinding => _machine.CurrentState == LocomotionMachineState.Rail;
 
         public bool HasWallContact => _context.Sensors.WallDetected;
-
         public Vector3 WallNormal => _context.Sensors.WallCollision.normal;
 
         public bool IsGrappling => _machine.CurrentState == LocomotionMachineState.Grapple;
-
         public Vector3 PivotWorldPoint => _state.Grapple.WorldPoint;
+        public float MaxLength => _state.Grapple.MaxLength;
+        public float CurrentLength => _state.Grapple.CurrentLength;
 
         public event Action OnGrappleAttached = delegate { };
-        public event Action OnGrappleDetached = delegate { };
+        public event Action<Vector3> OnGrappleDetached = delegate { };
 
         public string GetMachinePath()
             => _machine.GetFullPath();
     }
 
-    public partial class LocomotionController
-        : IRailAttachable
+    public partial class LocomotionController : IRailAttachable
     {
         public bool IsAttachedToRail => _state.Rail.IsAttached;
 
@@ -176,8 +174,7 @@ namespace Game.Movement
         }
     }
 
-    public partial class LocomotionController
-    : IGrappleAttachable
+    public partial class LocomotionController : IGrappleAttachable
     {
         public bool IsGrappleAttached => _state.Grapple.IsGrappled;
 
