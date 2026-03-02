@@ -1,11 +1,14 @@
+using Game.Interaction;
 using Game.Movement.API.Requests;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Splines;
 
-namespace Game.Interaction
+using DisplayInfo = Game.Interaction.DisplayInfo;
+
+namespace Game.Experimental
 {
-    public class SplineInteractable : MonoBehaviour, IInteractable, IInteractionDisplay
+    public class ExperimentalRail : MonoBehaviour, IInteractable, IInteractionDisplay
     {
         private SplineContainer _splineContainer;
         private EntityId _playerId;

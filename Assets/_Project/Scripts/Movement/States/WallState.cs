@@ -44,8 +44,8 @@ namespace Game.Movement.States
             if (tangent.sqrMagnitude > 0.0001f)
             {
                 tangent.Normalize();
-                float a = Vector3.Dot(tangent, context.Orientation.Forward);
-                float b = Vector3.Dot(-tangent, context.Orientation.Forward);
+                float a = Vector3.Dot(tangent, context.Orientation.ForwardFlat);
+                float b = Vector3.Dot(-tangent, context.Orientation.ForwardFlat);
                 _wallDirection = (b > a) ? -tangent : tangent;
             }
 

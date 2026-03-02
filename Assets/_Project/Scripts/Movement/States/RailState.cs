@@ -25,7 +25,7 @@ namespace Game.Movement.States
             _railSpline = payload.Spline;
             _length = Mathf.Max(_railSpline.CalculateLength(), 1e-4f);
 
-            // Snap to nearest spline point from motor point (robust attach)
+            // Snap to nearest spline LocalPoint from motor LocalPoint (robust attach)
             float3 localQuery = _railSpline.transform.InverseTransformPoint(context.Motor.transform.position);
             SplineUtility.GetNearestPoint(_railSpline.Spline, localQuery, out _, out float t);
 
@@ -99,7 +99,7 @@ namespace Game.Movement.States
             // Target speed from input
             float targetSpeed = cfg.Speed * wishAlong;
 
-            // Smooth speed toward target (your original logic)
+            // Smooth speed toward Target (your original logic)
             rail.Speed = Mathf.Lerp(rail.Speed, targetSpeed, cfg.Acceleration * dt);
 
             // --- SLOPE GRAVITY (affects speed only) ---
@@ -147,7 +147,7 @@ namespace Game.Movement.States
             float distance = (rail.T * _length) + (rail.Speed * dt);
             rail.T = Mathf.Clamp01(distance / _length);
 
-            // Convert next rail point into velocity
+            // Convert next rail LocalPoint into velocity
             Vector3 nextPoint = _railSpline.EvaluatePosition(rail.T);
 
             // Re-read motor pos in case we snapped

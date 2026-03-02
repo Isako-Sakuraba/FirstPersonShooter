@@ -50,7 +50,7 @@ namespace Game.Movement
 
         public void RecalculateWishDir()
         {
-            var wish = Orientation.Forward * Input.Move.y + Orientation.Right * Input.Move.x;
+            var wish = Orientation.ForwardFlat * Input.Move.y + Orientation.RightFlat * Input.Move.x;
             WishDir = Vector3.ClampMagnitude(wish, 1f);
         }
     }

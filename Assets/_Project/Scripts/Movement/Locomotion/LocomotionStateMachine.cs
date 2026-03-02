@@ -137,9 +137,12 @@ namespace Game.Movement
             // Grapple transitions
             var toGrapple = new Trans(context, ctx => ctx.State.Grapple.AttachmentPayload.IsPresent && !ctx.State.Grapple.IsGrappled);
             var fromGrapple = new Trans(context, ctx => ctx.Input.CrouchHeld);
+            var grappleJump = new Trans(context, ctx => ctx.Input.JumpBufferTimer.IsRunning);
+            var grappleJumpAction = new ATrans(grappleJump, context, ctx => ctx.State.Jump.Payload.Set(new(JumpKind.Normal)));
 
             machine.AddTransition(LMS.Air, LMS.Grapple, toGrapple);
             machine.AddTransition(LMS.Grapple, LMS.Air, fromGrapple);
+            machine.AddTransition(LMS.Grapple, LMS.Air, grappleJumpAction);
         }
 
         private void CreateGroundedTransitions(LocomotionContext context)

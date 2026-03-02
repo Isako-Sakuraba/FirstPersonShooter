@@ -2,6 +2,7 @@ using ECM2;
 using Game.Data.Movement;
 using Game.Movement.API;
 using Game.Movement.API.Requests;
+using System;
 using UnityEngine;
 
 namespace Game.Movement
@@ -29,6 +30,24 @@ namespace Game.Movement
         public void Initialize(ILocomotionInputSource inputSource)
         {
             _inputSource = inputSource;
+        }
+
+        private void OnEnable()
+        {
+            _state.Grapple.OnGrappleStatusChanged += GrappleStatusChanged;
+        }
+
+        private void OnDisable()
+        {
+            _state.Grapple.OnGrappleStatusChanged -= GrappleStatusChanged;
+        }
+
+        private void GrappleStatusChanged(bool attached)
+        {
+            if (attached)
+                OnGrappleAttached.Invoke();
+            else
+                OnGrappleDetached.Invoke();
         }
 
         private void Awake()
@@ -71,7 +90,6 @@ namespace Game.Movement
             float dt = Time.fixedDeltaTime;
 
             _context.Sensors.Update();
-            Debug.Log($"Pointer has hit: {_sensors.PointerHasHit}");
             _body.Update(_input.CrouchHeld ? Stance.Crouched : Stance.Standing);
 
             var oldVelocity = _state.Kinematics.Velocity;
@@ -104,8 +122,8 @@ namespace Game.Movement
     public partial class LocomotionController
         : IReadOnlyLocomotionController
     {
-        public Vector3 Forward => _context.Orientation.Forward;
-        public Vector3 Right => _context.Orientation.Right;
+        public Vector3 Forward => _context.Orientation.ForwardFlat;
+        public Vector3 Right => _context.Orientation.RightFlat;
 
         public IBodyState Body => _body;
 
@@ -123,6 +141,13 @@ namespace Game.Movement
         public bool HasWallContact => _context.Sensors.WallDetected;
 
         public Vector3 WallNormal => _context.Sensors.WallCollision.normal;
+
+        public bool IsGrappling => _machine.CurrentState == LocomotionMachineState.Grapple;
+
+        public Vector3 PivotWorldPoint => _state.Grapple.WorldPoint;
+
+        public event Action OnGrappleAttached = delegate { };
+        public event Action OnGrappleDetached = delegate { };
 
         public string GetMachinePath()
             => _machine.GetFullPath();
@@ -158,10 +183,10 @@ namespace Game.Movement
 
         public bool TryGrappleAttach(in GrappleAttachRequest request)
         {
-            if (_state.Grapple.IsGrappled || _state.Grapple.AttachmentPayload.IsPresent)
+            if (_state.Grapple.IsGrappled || _state.Grapple.AttachmentPayload.IsPresent || _context.IsGrounded)
                 return false;
 
-            _state.Grapple.AttachmentPayload.Set(new GrappleAttachPayload(request.type, request.point));
+            _state.Grapple.AttachmentPayload.Set(new GrappleAttachPayload(request.Type, request.LocalPoint, request.Target, request.MaxLength));
             return true;
         }
 

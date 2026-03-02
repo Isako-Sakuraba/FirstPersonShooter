@@ -40,7 +40,7 @@ namespace Game.Rigs
 
             _pitch -= mouseY;
             _pitch = Mathf.Clamp(_pitch, _pitchLimits.x, _pitchLimits.y);
-            _orientation.UpdateYaw(mouseX);
+            _orientation.UpdateAll(mouseX, -mouseY, _pitchLimits);
 
             _previousDelta = delta;
         }

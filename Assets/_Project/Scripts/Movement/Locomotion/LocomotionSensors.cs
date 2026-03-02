@@ -16,12 +16,6 @@ namespace Game.Movement
         public CollisionResult WallCollision => _wallCollision;
         public bool WallDetected => _wallDetected;
 
-        private RaycastHit _pointerHit;
-        private bool _pointerHasHit;
-
-        public RaycastHit PointerHit => _pointerHit;
-        public bool PointerHasHit => _pointerHasHit;
-
         public LocomotionSensors(CharacterMovement controller, MovementConfig config, Transform pointer)
         {
             _controller = controller;
@@ -32,7 +26,6 @@ namespace Game.Movement
         public void Update()
         {
             ProbeWallrunning();
-            ProbePointer();
         }
 
         private void ProbeWallrunning()
@@ -48,11 +41,6 @@ namespace Game.Movement
                     return;
                 }
             }
-        }
-
-        private void ProbePointer()
-        {
-            _pointerHasHit = Physics.Raycast(_pointer.position, _pointer.forward, out _pointerHit, _config.Grapple.Distance, _config.Grapple.GrappableLayers);
         }
     }
 }

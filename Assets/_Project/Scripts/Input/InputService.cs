@@ -66,7 +66,7 @@ public class InputService : MonoBehaviour
         _interact = _interactAction.action.triggered;
         _noclipPressed = _noclipAction.action.triggered;
         _firePressed = _fireAction.action.triggered;
-    }
+     }
 
     private void OnEnable()
     {

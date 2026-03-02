@@ -10,13 +10,17 @@ namespace Game.Movement.API.Requests
 
     public readonly struct GrappleAttachRequest
     {
-        public readonly GrappleType type;
-        public readonly Vector3 point;
+        public readonly GrappleType Type;
+        public readonly Vector3 LocalPoint;
+        public readonly Transform Target;
+        public readonly float MaxLength;
 
-        public GrappleAttachRequest(GrappleType type, Vector3 point)
+        public GrappleAttachRequest(GrappleType type, Vector3 localPoint, Transform target, float maxLength)
         {
-            this.type = type;
-            this.point = point;
+            Type = type;
+            LocalPoint = localPoint;
+            Target = target;
+            MaxLength = maxLength;
         }
     }
 

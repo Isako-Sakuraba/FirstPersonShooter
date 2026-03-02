@@ -53,7 +53,8 @@ namespace Game.Experimental
             if (attachable == null)
                 return;
 
-            var sent = attachable.TryGrappleAttach(new GrappleAttachRequest(GrappleType.Rope, _pivot.position));
+            var point = transform.InverseTransformPoint(_pivot.position);
+            var sent = attachable.TryGrappleAttach(new GrappleAttachRequest(GrappleType.Rope, point, transform, _length));
             if (sent)
             {
                 _playerId = context.Interactor.GetEntityId();
@@ -67,7 +68,7 @@ namespace Game.Experimental
             Vector3 ropeDirection = bottom - top;
             float ropeLength = ropeDirection.magnitude;
 
-            // Handle case where top and bottom are the same point
+            // Handle case where top and bottom are the same LocalPoint
             if (ropeLength < 0.0001f)
                 return top;
 
@@ -83,7 +84,7 @@ namespace Game.Experimental
             // Clamp t to the rope segment [0, ropeLength]
             t = Mathf.Clamp(t, 0.0f, ropeLength);
 
-            // Calculate the closest point on the rope
+            // Calculate the closest LocalPoint on the rope
             Vector3 closestPoint = top + ropeDirectionNormalized * t;
 
             return closestPoint;

@@ -30,7 +30,7 @@ namespace Game.Movement.States
             // Apply friction and acceleration
             velocity = MovementMath.ApplyFriction(velocity, context.Data.Ground.Friction, context.Data.Ground.StopSpeed, Time.fixedDeltaTime);
 
-            //Calculate target speed
+            //Calculate Target speed
             float targetSpeed = context.Input.SprintHeld ? context.Data.Ground.RunSpeed : context.Data.Ground.WalkSpeed;
             targetSpeed = context.Body.Stance == Stance.Standing ? targetSpeed : context.Data.Ground.CrouchSpeed;
             targetSpeed *= wishDir.magnitude;

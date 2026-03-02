@@ -10,7 +10,6 @@ namespace Game.Movement
         bool JumpHeld { get; }
         bool SprintHeld { get; }
         bool CrouchHeld { get; }
-        bool FirePressed { get; }
     }
 
     public sealed class LocomotionInput
@@ -19,10 +18,8 @@ namespace Game.Movement
         public bool JumpPressed { get; private set; }
         public bool SprintHeld { get; private set; }
         public bool CrouchHeld { get; private set; }
-        public bool FirePressed { get; private set; }
 
         public CountdownTimer JumpBufferTimer { get; } = new(0.2f);
-        public CountdownTimer GrappleBufferTimer { get; } = new(0.2f);
 
         public void UpdateFrom(ILocomotionInputSource source)
         {
@@ -30,19 +27,12 @@ namespace Game.Movement
             JumpPressed = source.JumpPressed;
             SprintHeld = source.SprintHeld;
             CrouchHeld = source.CrouchHeld;
-            FirePressed = source.FirePressed;
 
             if (JumpPressed)
                 JumpBufferTimer.Start();
-
-            if (FirePressed)
-                GrappleBufferTimer.Start();
         }
 
         public void ConsumeJumpBuffer()
-            => JumpBufferTimer.Cancel();
-
-        public void ConsumeGrappleBuffer()
             => JumpBufferTimer.Cancel();
     }
 }

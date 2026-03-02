@@ -40,19 +40,19 @@ namespace Game.Experimental
         {
             var dt = Time.fixedDeltaTime;
 
-            MovementMath.StepPendulum3D(
-                _pivot.position,
-                _length,
-                _gravity * Vector3.up,
-                dt,
-                _position,
-                _velocity,
-                out var nextP,
-                out var nextV,
-                _drag);
+            //MovementMath.StepPendulum3D(
+            //    _pivot.position,
+            //    _ropeRestLength,
+            //    _gravity * Vector3.up,
+            //    dt,
+            //    _position,
+            //    _velocity,
+            //    out var nextP,
+            //    out var nextV,
+            //    _drag);
 
-            _position = nextP;
-            _velocity = nextV;
+            //_position = nextP;
+            //_velocity = nextV;
         }
     }
 }

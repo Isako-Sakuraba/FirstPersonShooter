@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Game.Movement.API
@@ -21,9 +22,14 @@ namespace Game.Movement.API
         bool IsSliding { get; }
         bool IsWallrunning { get; }
         bool IsRailgrinding { get; }
+        bool IsGrappling { get; }
 
         bool HasWallContact { get; }
         Vector3 WallNormal { get; }
+
+        Vector3 PivotWorldPoint { get; }
+        event Action OnGrappleAttached;
+        event Action OnGrappleDetached;
 
         string GetMachinePath();
     }
