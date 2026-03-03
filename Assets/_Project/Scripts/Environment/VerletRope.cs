@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace Game.Experimental
 {
+    [SelectionBase]
     public class VerletRope : MonoBehaviour
     {
         #region SERIALIZED FIELDS
@@ -14,6 +15,7 @@ namespace Game.Experimental
 
         [Header("Visuals")]
         [SerializeField] private bool _handleVisuals = true;
+        [SerializeField] private bool _updatePinnedTop = true;
         [SerializeField] private bool _lerpPositions = true;
         [Min(0.1f)]
         [SerializeField] private float _lerpFactor = 40f;
@@ -125,6 +127,10 @@ namespace Game.Experimental
 
         private void FixedUpdate()
         {
+            _lastHandle.Complete();
+
+            UpdatePinnedTop();
+
             float dt = Time.fixedDeltaTime;
 
             var simulateJob = new SimulateJob
@@ -148,6 +154,17 @@ namespace Game.Experimental
             batchLength = math.max(batchLength, 1);
             var simulateHandle = simulateJob.Schedule(_segmentsCount, batchLength, dependsOn: _lastHandle);
             _lastHandle = constraintsJob.Schedule(dependsOn: simulateHandle);
+        }
+
+        private void UpdatePinnedTop()
+        {
+            if (_updatePinnedTop && _pinTop)
+            {
+                var s = _segments[0];
+                s.CurrentPosition = transform.position;
+                s.PreviousPosition = transform.position;
+                _segments[0] = s;
+            }
         }
 
         private void OnDestroy()

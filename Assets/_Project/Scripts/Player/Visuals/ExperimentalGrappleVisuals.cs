@@ -12,7 +12,7 @@ namespace Game.Experimental
 
         bool track = false;
 
-        private void Awake()
+        private void Start()
         {
             GrappleDetached(_playerVisuals.position);
             _ropePivot.useWorldSpace = true;
