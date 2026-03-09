@@ -41,7 +41,10 @@ public class InputService : MonoBehaviour
     private bool _crouch;
     private bool _interact;
     private bool _noclipPressed;
+
     private bool _firePressed;
+    private bool _fireHeld;
+    private bool _fireReleased;
 
     public Vector2 Move => _move;
     public Vector2 MouseDelta => _mouseDelta;
@@ -51,7 +54,10 @@ public class InputService : MonoBehaviour
     public bool Crouch => _crouch;
     public bool Interact => _interact;
     public bool NoclipPressed => _noclipPressed;
+
     public bool FirePressed => _firePressed;
+    public bool FireHeld => _fireHeld;
+    public bool FireReleased => _fireReleased;
 
     public event Action OnInteractPressed = delegate { };
 
@@ -65,8 +71,11 @@ public class InputService : MonoBehaviour
         _crouch = _crouchAction.action.ReadValue<float>() > 0.1f;
         _interact = _interactAction.action.triggered;
         _noclipPressed = _noclipAction.action.triggered;
-        _firePressed = _fireAction.action.triggered;
-     }
+
+        _firePressed = _fireAction.action.WasPressedThisFrame();
+        _fireHeld = _fireAction.action.IsPressed();
+        _fireReleased = _fireAction.action.WasReleasedThisFrame();
+    }
 
     private void OnEnable()
     {

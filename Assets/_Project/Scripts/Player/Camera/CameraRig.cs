@@ -31,7 +31,9 @@ namespace Game.Rigs
         private void Update()
         {
             Vector2 delta = _inputService.MouseDelta;
-            delta = Vector2.Lerp(_previousDelta, delta, _smoothing * Time.deltaTime);
+            float dt = Time.unscaledDeltaTime;
+            float smoothingFactor = 1f - Mathf.Exp(-_smoothing * dt);
+            delta = Vector2.Lerp(_previousDelta, delta, smoothingFactor);
 
             float mouseX = delta.x * _sensitivity.x;
             float mouseY = delta.y * _sensitivity.y;
