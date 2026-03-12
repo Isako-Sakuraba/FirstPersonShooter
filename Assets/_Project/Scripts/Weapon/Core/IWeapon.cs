@@ -4,11 +4,15 @@ namespace Game.Weapons
 {
     public readonly struct FireContext
     {
-        public readonly Transform Direction;
+        public readonly Vector3 Direction;
+        public readonly Vector3 Position;
+        public readonly LayerMask LayerMask;
 
-        public FireContext(Transform direction)
+        public FireContext(Vector3 direction, Vector3 position, LayerMask layerMask)
         {
             Direction = direction;
+            Position = position;
+            LayerMask = layerMask;
         }
     }
 

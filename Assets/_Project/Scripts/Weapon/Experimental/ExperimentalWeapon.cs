@@ -9,7 +9,7 @@ namespace Game.Weapons.Experimental
         [SerializeField] private float _range = 100f;
         [SerializeField] private LayerMask _hitMask = ~0;
 
-        [Header("Damage")]
+        [Header("TryDamage")]
         [SerializeField] private int _damage = 10;
 
         private InputService _inputService;

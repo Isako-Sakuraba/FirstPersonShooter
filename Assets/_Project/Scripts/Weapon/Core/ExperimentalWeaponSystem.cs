@@ -6,6 +6,8 @@ namespace Game.Weapons.Experimental
     {
         [SerializeField] private Transform _fireDirection;
         [SerializeField] private ExperimentalParryWeapon _parryPrefab;
+        [SerializeField] private Animator _animator;
+        [SerializeField] private LayerMask _hittableLayers;
 
         private IWeapon _currentWeapon;
         private bool _hasWeapon;
@@ -17,6 +19,7 @@ namespace Game.Weapons.Experimental
             _inputService = InputService.Instance;
 
             var parry = Instantiate(_parryPrefab, transform);
+            parry.Animator = _animator;
             _currentWeapon = parry;
             _hasWeapon = true;
         }
@@ -26,7 +29,7 @@ namespace Game.Weapons.Experimental
             if (!_hasWeapon)
                 return;
 
-            var context = new FireContext(_fireDirection);
+            var context = new FireContext(_fireDirection.forward, _fireDirection.position, _hittableLayers);
 
             if (_inputService.FirePressed)
                 _currentWeapon.OnFireStart(in context);

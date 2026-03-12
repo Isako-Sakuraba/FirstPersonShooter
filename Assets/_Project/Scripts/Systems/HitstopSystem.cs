@@ -16,7 +16,7 @@ namespace Game.Systems
             if (_hitstop)
                 return false;
 
-            int id = TimeSystem.Slow(0.1f, 0.2f, HitstopEnd);
+            int id = TimeSystem.Slow(0f, 0.28f, HitstopEnd);
             _hitstop = id != -1;
 
             if (_hitstop)

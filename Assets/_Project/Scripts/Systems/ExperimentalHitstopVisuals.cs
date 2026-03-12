@@ -7,7 +7,8 @@ namespace Game.Experimental
     public class ExperimentalHitstopVisuals : MonoBehaviour
     {
         [SerializeField] private GameObject _overlay;
-        [SerializeField] private AudioSource _audio;
+        [SerializeField] private AudioSource _parryAudio;
+        [SerializeField] private AudioSource _daamnAudio;
 
         private void Awake()
         {
@@ -19,8 +20,9 @@ namespace Game.Experimental
         private void HitstopStart()
         {
             _overlay.SetActive(true);
-            _audio.Play();
-            _audio.time = 0.05f;
+            _parryAudio.Play();
+            _daamnAudio.Play();
+            _parryAudio.time = 0.05f;
         }
 
         private void HitstopEnd()
