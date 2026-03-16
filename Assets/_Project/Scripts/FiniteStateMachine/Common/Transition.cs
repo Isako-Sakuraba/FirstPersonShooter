@@ -1,5 +1,4 @@
 using FiniteStateMachine.Core;
-using static UnityEditor.VersionControl.Asset;
 
 namespace FiniteStateMachine.Common
 {

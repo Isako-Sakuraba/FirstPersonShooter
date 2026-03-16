@@ -7,7 +7,7 @@ namespace ECM2
     /// This component extends a Character (through composition) adding navigation capabilities using a NavMeshAgent.
     /// This replaces the previous AgentCharacter class.
     /// </summary>
-    
+
     [RequireComponent(typeof(Character)), RequireComponent(typeof(NavMeshAgent))]
     public class NavMeshCharacter : MonoBehaviour
     {
@@ -37,19 +37,19 @@ namespace ECM2
         #endregion
 
         #region PROPERTIES
-        
+
         /// <summary>
         /// Cached NavMeshAgent component.
         /// </summary>
 
         public NavMeshAgent agent => _agent;
-        
+
         /// <summary>
         /// Cached Character component.
         /// </summary>
 
         public Character character => _character;
-        
+
         /// <summary>
         /// Should the agent brake automatically to avoid overshooting the destination point?
         /// If this property is set to true, the agent will brake automatically as it nears the destination.
@@ -109,7 +109,7 @@ namespace ECM2
         #endregion
 
         #region EVENTS
-        
+
         public delegate void DestinationReachedEventHandler();
 
         /// <summary>
@@ -127,25 +127,25 @@ namespace ECM2
         {
             DestinationReached?.Invoke();
         }
-        
+
         #endregion
 
         #region METHODS
-        
+
         /// <summary>
         /// Cache used components.
         /// </summary>
-        
+
         protected virtual void CacheComponents()
         {
             _agent = GetComponent<NavMeshAgent>();
             _character = GetComponent<Character>();
         }
-        
+
         /// <summary>
         /// Does the Agent currently has a path?
         /// </summary>
-        
+
         public virtual bool HasPath()
         {
             return agent.hasPath;
@@ -154,12 +154,12 @@ namespace ECM2
         /// <summary>
         /// True if Agent is following a path, false otherwise.
         /// </summary>
-        
+
         public virtual bool IsPathFollowing()
         {
             return agent.hasPath && !agent.isStopped;
         }
-        
+
         /// <summary>
         /// Returns the destination set for this agent.
         /// If a destination is set but the path is not yet processed,
@@ -167,12 +167,12 @@ namespace ECM2
         /// If the agent has no path or requested path - returns the agents position on the navmesh.
         /// If the agent is not mapped to the navmesh (e.g. Scene has no navmesh) - returns a position at infinity.
         /// </summary>
-        
+
         public virtual Vector3 GetDestination()
         {
             return agent.destination;
         }
-        
+
         /// <summary>
         /// Requests the character to move to the valid navmesh position that's closest to the requested destination.
         /// </summary>
@@ -181,38 +181,38 @@ namespace ECM2
         {
             Vector3 worldUp = -character.GetGravityDirection();
             Vector3 toDestination2D = Vector3.ProjectOnPlane(destination - character.position, worldUp);
-            
+
             if (toDestination2D.sqrMagnitude >= MathLib.Square(stoppingDistance))
                 agent.SetDestination(destination);
         }
-        
+
         /// <summary>
         /// Pause / Resume Character path following movement.
         /// If set to True, the character's movement will be stopped along its current path.
         /// If set to False after the character has stopped, it will resume moving along its current path.
         /// </summary>
-        
+
         public virtual void PauseMovement(bool pause)
         {
             agent.isStopped = pause;
             character.SetMovementDirection(Vector3.zero);
         }
-        
+
         /// <summary>
         /// Halts Character's current path following movement.
         /// This will clear agent's current path.
         /// </summary>
-        
+
         public virtual void StopMovement()
         {
             agent.ResetPath();
             character.SetMovementDirection(Vector3.zero);
         }
-        
+
         /// <summary>
         /// Computes the analog input modifier (0.0f to 1.0f) based on Character's max speed and given desired velocity.
         /// </summary>
-        
+
         protected virtual float ComputeAnalogInputModifier(Vector3 desiredVelocity)
         {
             float maxSpeed = _character.GetMaxSpeed();
@@ -221,7 +221,7 @@ namespace ECM2
 
             return 0.0f;
         }
-        
+
         /// <summary>
         /// Calculates Character movement direction from a given desired velocity factoring (if enabled) auto braking.
         /// </summary>
@@ -230,7 +230,7 @@ namespace ECM2
         {
             Vector3 worldUp = -character.GetGravityDirection();
             Vector3 desiredVelocity2D = Vector3.ProjectOnPlane(desiredVelocity, worldUp);
-            
+
             Vector3 scaledDesiredVelocity2D = desiredVelocity2D * brakingRatio;
 
             float minAnalogSpeed = _character.GetMinAnalogSpeed();
@@ -239,7 +239,7 @@ namespace ECM2
 
             return Vector3.ClampMagnitude(scaledDesiredVelocity2D, ComputeAnalogInputModifier(scaledDesiredVelocity2D));
         }
-        
+
         /// <summary>
         /// Makes the character's follow Agent's path (if any).
         /// Eg: Keep updating Character's movement direction vector to steer towards Agent's destination until reached.
@@ -249,7 +249,7 @@ namespace ECM2
         {
             if (!IsPathFollowing())
                 return;
-            
+
             // Is destination reached ?
 
             if (agent.remainingDistance <= stoppingDistance)
@@ -270,7 +270,7 @@ namespace ECM2
                 character.SetMovementDirection(movementDirection);
             }
         }
-        
+
         /// <summary>
         /// Synchronize the NavMeshAgent with Character (eg: speed, acceleration, velocity, etc) as we moves the Agent.
         /// </summary>
@@ -281,18 +281,18 @@ namespace ECM2
 
             agent.speed = _character.GetMaxSpeed();
             agent.acceleration = _character.GetMaxAcceleration();
-            
+
             agent.velocity = _character.GetVelocity();
             agent.nextPosition = _character.GetPosition();
 
             agent.radius = _character.radius;
             agent.height = _character.height;
         }
-        
+
         /// <summary>
         /// On MovementMode change, stop agent movement if character is not walking or falling.
         /// </summary>
-        
+
         protected virtual void OnMovementModeChanged(Character.MovementMode prevMovementMode, int prevCustomMovementMode)
         {
             if (!character.IsWalking() || !character.IsFalling())
@@ -300,7 +300,7 @@ namespace ECM2
                 StopMovement();
             }
         }
-        
+
         /// <summary>
         /// While Character has a valid path, do path following. 
         /// </summary>
@@ -309,11 +309,11 @@ namespace ECM2
         {
             DoPathFollowing();
         }
-        
+
         #endregion
 
         #region MONOBEHAVIOUR
-        
+
         /// <summary>
         /// If overriden, base method MUST be called.
         /// </summary>
@@ -325,7 +325,7 @@ namespace ECM2
             _brakingDistance = 2.0f;
             _stoppingDistance = 1.0f;
         }
-        
+
         /// <summary>
         /// If overriden, base method MUST be called.
         /// </summary>
@@ -334,7 +334,7 @@ namespace ECM2
         {
             if (_agent == null)
                 _agent = GetComponent<NavMeshAgent>();
-            
+
             brakingDistance = _brakingDistance;
             stoppingDistance = _stoppingDistance;
         }
@@ -346,9 +346,9 @@ namespace ECM2
         protected virtual void Awake()
         {
             // Cache used components
-            
+
             CacheComponents();
-            
+
             // Initialize NavMeshAgent
 
             agent.autoBraking = autoBraking;
@@ -356,13 +356,13 @@ namespace ECM2
 
             // Turn-off NavMeshAgent auto-control,
             // we control it (see SyncNavMeshAgent method)
-            
+
             agent.updatePosition = false;
             agent.updateRotation = false;
 
             agent.updateUpAxis = false;
         }
-        
+
         /// <summary>
         /// If overriden, base method MUST be called.
         /// </summary>
@@ -370,23 +370,23 @@ namespace ECM2
         protected virtual void OnEnable()
         {
             // Subscribe to Character events
-            
+
             character.MovementModeChanged += OnMovementModeChanged;
             character.BeforeSimulationUpdated += OnBeforeSimulationUpdated;
         }
-        
+
         /// <summary>
         /// If overriden, base method MUST be called.
         /// </summary>
-        
+
         protected virtual void OnDisable()
         {
             // Un-Subscribe to Character events
-            
+
             character.MovementModeChanged -= OnMovementModeChanged;
             character.BeforeSimulationUpdated -= OnBeforeSimulationUpdated;
         }
-        
+
         /// <summary>
         /// If overriden, base method MUST be called.
         /// </summary>

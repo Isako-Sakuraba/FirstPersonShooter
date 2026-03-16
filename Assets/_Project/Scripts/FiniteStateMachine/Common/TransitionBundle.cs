@@ -27,7 +27,7 @@ namespace FiniteStateMachine.Common
         {
             if (_operation == Operation.Any)
                 foreach (var transition in _bundle)
-                    if(transition.Evaluate()) return true;
+                    if (transition.Evaluate()) return true;
 
             bool intermediate = false;
             if (_operation == Operation.All)

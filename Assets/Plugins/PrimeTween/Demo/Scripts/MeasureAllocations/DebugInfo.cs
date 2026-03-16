@@ -6,7 +6,8 @@ using PrimeTween;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace PrimeTweenDemo {
+namespace PrimeTweenDemo
+{
     /// <summary>
     /// PrimeTween uses static delegates (lambdas with no external captures) to play animations.
     /// The first time a particular animation is played, C# runtime caches the delegate for this animation, and the GC.Alloc is shown in Profiler.
@@ -19,49 +20,59 @@ namespace PrimeTweenDemo {
     ///     Run the Demo and play all animations at least once. This will cache the aforementioned static delegates.
     ///     Restart the Demo scene and observe that PrimeTween doesn't allocate heap memory after static delegates warm-up.
     /// </summary>
-    public class DebugInfo : MonoBehaviour {
-        #pragma warning disable 0414
+    public class DebugInfo : MonoBehaviour
+    {
+#pragma warning disable 0414
         [SerializeField] MeasureMemoryAllocations measureMemoryAllocations;
         [SerializeField] Text tweensCountText;
         [SerializeField] Text gcAllocText;
-        #pragma warning restore 0414
-        #if UNITY_EDITOR && UNITY_2019_1_OR_NEWER
+#pragma warning restore 0414
+#if UNITY_EDITOR && UNITY_2019_1_OR_NEWER
         long curTweensCount = -1;
         int? curGCAlloc;
 
-        void Start() {
+        void Start()
+        {
             gcAllocText.text = string.Empty;
-            if (shouldDisable()) {
+            if (shouldDisable())
+            {
                 gameObject.SetActive(false);
             }
-            if (Profiler.enabled && !UnityEditorInternal.ProfilerDriver.deepProfiling) {
+            if (Profiler.enabled && !UnityEditorInternal.ProfilerDriver.deepProfiling)
+            {
                 Debug.LogWarning("Please enable 'Deep Profile' for more accurate memory allocation measurements.");
             }
         }
 
-        static bool shouldDisable() {
-            if (!Application.isEditor) {
+        static bool shouldDisable()
+        {
+            if (!Application.isEditor)
+            {
                 return true;
             }
-            if (UnityEditor.EditorApplication.isPaused) {
+            if (UnityEditor.EditorApplication.isPaused)
+            {
                 return false; // Profiler.enabled returns false if scene is started paused in Unity 2021.3.26
             }
             return !Profiler.enabled;
         }
 
-        void Update() {
+        void Update()
+        {
             var newTweensCount = PrimeTweenManager.Instance.lastId;
-            if (curTweensCount != newTweensCount) {
+            if (curTweensCount != newTweensCount)
+            {
                 curTweensCount = newTweensCount;
                 tweensCountText.text = $"Animations: {newTweensCount}";
             }
             var newGCAlloc = measureMemoryAllocations.gcAllocTotal;
-            if (newGCAlloc.HasValue && curGCAlloc != newGCAlloc.Value) {
+            if (newGCAlloc.HasValue && curGCAlloc != newGCAlloc.Value)
+            {
                 curGCAlloc = newGCAlloc.Value;
                 gcAllocText.text = $"Heap allocations: {UnityEditor.EditorUtility.FormatBytes(newGCAlloc.Value)}";
             }
         }
-        #endif
+#endif
     }
 }
 #endif
