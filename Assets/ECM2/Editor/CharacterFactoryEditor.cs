@@ -24,7 +24,7 @@ namespace ECM2.Editor
             capsuleCollider.radius = 0.5f;
             capsuleCollider.height = 2.0f;
         }
-        
+
         [MenuItem(PATH + "Character", false, PRIORITY)]
         public static void CreateCharacter()
         {
@@ -34,7 +34,7 @@ namespace ECM2.Editor
                 typeof(CharacterMovement), typeof(Character));
 
             InitPhysicsBody(go);
-            
+
             // Focus the newly created character
 
             Undo.RegisterCreatedObjectUndo(go, "Create " + go.name);

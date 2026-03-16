@@ -68,7 +68,7 @@ namespace ECM2
 
             return vector3;
         }
-        
+
         /// <summary>
         /// Returns a copy of given vector with only X and Y components of the vector.
         /// </summary>
@@ -143,7 +143,7 @@ namespace ECM2
         /// <summary>
         /// Dot product of two vectors.
         /// </summary>        
-        
+
         public static float dot(this Vector3 vector3, Vector3 otherVector3)
         {
             return Vector3.Dot(vector3, otherVector3);
@@ -214,7 +214,7 @@ namespace ECM2
                 if (forward.isZero())
                     forward = Vector3.ProjectOnPlane(relativeToThis.up, upAxis);
             }
-            
+
             Quaternion q = Quaternion.LookRotation(forward);
 
             return q * vector3;

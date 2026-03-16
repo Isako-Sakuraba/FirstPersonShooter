@@ -14,7 +14,7 @@ namespace ECM2
 
             return Mathf.Lerp(outA, outB, t);
         }
-        
+
         /// <summary>
         /// Return the square of the given value.
         /// </summary>
@@ -27,7 +27,7 @@ namespace ECM2
         /// <summary>
         /// Returns the direction adjusted to be tangent to a specified surface normal relatively to given up axis.
         /// </summary>
-        
+
         public static Vector3 GetTangent(Vector3 direction, Vector3 normal, Vector3 up)
         {
             Vector3 right = direction.perpendicularTo(up);
@@ -46,11 +46,11 @@ namespace ECM2
 
             return point - toPointProjected;
         }
-        
+
         /// <summary>
         /// Clamps given angle within min - max range.
         /// </summary>
-        
+
         public static float ClampAngle(float a, float min, float max)
         {
             while (max < min)
@@ -64,7 +64,7 @@ namespace ECM2
 
             return a > max ? a - (max + min) * 0.5f < 180.0f ? max : min : a;
         }
-        
+
         /// <summary>
         /// Returns Angle in the range (0, 360)
         /// </summary>
@@ -84,7 +84,7 @@ namespace ECM2
 
             return angle;
         }
-        
+
         /// <summary>
         /// Return angle in range -180 to 180
         /// </summary>
@@ -108,7 +108,7 @@ namespace ECM2
         /// <summary>
         /// Clamps the given angle into 0 - 360 degrees range.
         /// </summary>
-        
+
         private static float Clamp0360(float eulerAngles)
         {
             float result = eulerAngles - Mathf.CeilToInt(eulerAngles / 360f) * 360f;
@@ -150,22 +150,22 @@ namespace ECM2
 
             return Clamp0360(result);
         }
-        
+
         /// <summary>
         /// Frame Rate Independent Damping.
         /// Source: https://www.rorydriscoll.com/2016/03/07/frame-rate-independent-damping-using-lerp/
         /// </summary>
-        
+
         public static float Damp(float a, float b, float lambda, float dt)
         {
             return Mathf.Lerp(a, b, 1.0f - Mathf.Exp(-lambda * dt));
         }
-        
+
         /// <summary>
         /// Frame Rate Independent Damping.
         /// Source: https://www.rorydriscoll.com/2016/03/07/frame-rate-independent-damping-using-lerp/
         /// </summary>
-        
+
         public static Vector3 Damp(Vector3 a, Vector3 b, float lambda, float dt)
         {
             return Vector3.Lerp(a, b, 1.0f - Mathf.Exp(-lambda * dt));

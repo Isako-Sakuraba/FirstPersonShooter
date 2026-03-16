@@ -1,11 +1,12 @@
-using Game.Player.Movement;
+using Game.Movement;
+using Game.Movement.API;
 using UnityEngine;
 
-namespace Game.Player.Experimental
+namespace Game.Experimental
 {
     public class ExperimentalHeadRotation : MonoBehaviour
     {
-        [SerializeField] private PlayerMovement _player;
+        [SerializeField] private LocomotionController _player;
         [SerializeField] private Transform _target;
 
         [Header("Lean")]
@@ -17,10 +18,14 @@ namespace Game.Player.Experimental
         private Quaternion _baseLocalRot;
         private float _currentRoll;
 
+        private IReadOnlyLocomotionController _info;
+
         private void Awake()
         {
             if (_target != null)
                 _baseLocalRot = _target.localRotation;
+
+            _info = _player;
         }
 
         private void Update()
@@ -30,26 +35,24 @@ namespace Game.Player.Experimental
             float dt = Time.deltaTime;
             float targetRoll = 0f;
 
-            var ctx = _player.Conext;
-
             // Priority: wallrun over slide (feel free to swap)
-            if (ctx.Sensors.WallDetected && ctx.State.IsWallrunning)
+            if (_info.HasWallContact && _info.IsWallrunning)
             {
-                Vector3 wallN = ctx.Sensors.WallCollision.normal;
+                Vector3 wallN = _info.WallNormal;
 
-                float side = Vector3.Dot(wallN, ctx.Orientation.Right); // >0 => wall normal points right => wall is on left, typically
+                float side = Vector3.Dot(wallN, _info.Right); // >0 => wall normal _lineRendererPoints right => wall is on left, typically
                 // We want the wall side, not normal direction. If your normal convention differs, flip the sign.
                 // Lean into wall: wall on right -> roll right. A simple way is invert side.
                 float leanSign = -Mathf.Sign(side);
 
                 // Optionally scale by speed so tiny contacts don't tilt
-                Vector3 v = ctx.State.Velocity;
+                Vector3 v = _info.Velocity;
                 Vector3 horiz = new Vector3(v.x, 0f, v.z);
                 float speed = horiz.magnitude;
 
-                float forward = Vector3.Dot(horiz.normalized, ctx.Orientation.Forward);
+                float forward = Vector3.Dot(horiz.normalized, _info.Forward);
                 forward = Mathf.Abs(forward);
-                
+
 
                 if (speed > _minSpeed)
                 {
@@ -61,10 +64,10 @@ namespace Game.Player.Experimental
                     targetRoll = 0f;
                 }
             }
-            else if (ctx.State.IsSliding)
+            else if (_info.IsSliding)
             {
                 // Use horizontal velocity as the slide direction
-                Vector3 v = ctx.State.Velocity;
+                Vector3 v = _info.Velocity;
                 Vector3 horiz = new Vector3(v.x, 0f, v.z);
 
                 float speed = horiz.magnitude;
@@ -72,8 +75,8 @@ namespace Game.Player.Experimental
                 {
                     Vector3 dir = horiz / speed;
 
-                    // How much the slide points to the player's right (-1..+1)
-                    float dotRight = Vector3.Dot(dir, ctx.Orientation.Right);
+                    // How much the slide _lineRendererPoints to the player's right (-1..+1)
+                    float dotRight = Vector3.Dot(dir, _info.Right);
 
                     // Slide right -> tilt left (negative)
                     targetRoll = -dotRight * -_maxRollDegrees;
