@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/_Project/Prefabs/Dev/BloodParticlesDev.prefab.meta
 guid: b619d1c38fd3e714694a52ef212502b3
+========
+guid: d32c579cd39542944b609ca528d288bf
+>>>>>>>> 5e2192fbe870fbfd2155ac75e46322953392a920:Assets/_Project/Prefabs/Dev/BloodSplatter.prefab.meta
 PrefabImporter:
   externalObjects: {}
   userData: 
