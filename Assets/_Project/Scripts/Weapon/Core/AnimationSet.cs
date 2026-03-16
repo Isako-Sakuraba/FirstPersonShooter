@@ -44,7 +44,4 @@ namespace Game.Data
         AltFire,
         Cooldown
     }
-
-    [CreateAssetMenu(fileName = "NewRevolverAnimSet", menuName = "Static Data/Entry Sets/Revolver")]
-    public sealed class RevolverAnimationSet : AnimationSet<RevolverAnimationId> { }
 }
