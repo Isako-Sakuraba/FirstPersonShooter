@@ -9,6 +9,7 @@ namespace Game.Weapons.Experimental
     {
         [Header("Dependencies")]
         [SerializeField] private Transform _fireDirection;
+        [SerializeField] private AudioSource _weaponAudio;
         [SerializeField] private Animator _armsAnimator;
         [SerializeField] private LayerMask _hittableLayers;
 
@@ -39,11 +40,12 @@ namespace Game.Weapons.Experimental
 
         private void Start()
         {
-            _fists.Construct(_armsAnimator);
+            _fists.Construct(_armsAnimator, _weaponAudio);
 
             foreach (var weapon in _weaponList)
             {
                 var instance = new WeaponInstance { weapon = weapon, gameObject = weapon.gameObject };
+                weapon.Construct(_armsAnimator, _weaponAudio);
                 _weapons[weapon.Slot] = instance;
                 instance.gameObject.SetActive(false);
             }
@@ -94,6 +96,15 @@ namespace Game.Weapons.Experimental
 
             if (_inputService.FireReleased)
                 _currentWeapon.weapon.OnFireEnd(in context);
+
+            if (_inputService.AltFirePressed)
+                _currentWeapon.weapon.OnAltFireStart(in context);
+
+            if (_inputService.AltFireHeld)
+                _currentWeapon.weapon.OnAltFireHold(in context);
+
+            if (_inputService.AltFireReleased)
+                _currentWeapon.weapon.OnAltFireEnd(in context);
         }
 
         private void TryChangeWeapon()

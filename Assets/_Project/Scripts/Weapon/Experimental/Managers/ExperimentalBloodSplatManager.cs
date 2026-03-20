@@ -33,7 +33,7 @@ namespace Game.Weapons.Experimental
 
         RenderParams _rp;
 
-        // Safe default. Docs explain practical limits can be 511 depending on instance payload/shader.
+        // Safe default. Docs explain practical limits can be 511 depending on _instance payload/shader.
         const int kBatchMax = 511;
 
         public int Capacity => capacity;

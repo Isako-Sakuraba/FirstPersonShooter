@@ -45,7 +45,14 @@ namespace Game.Weapons.Experimental
             if (collider.TryGetComponent<IDamageable>(out var damageable))
             {
                 armsAnimator.Play("Punch", -1, 0.17f);
-                damageable.TakeDamage(Damage, point, normal);
+                var damageContext = new DamageContext(
+                    Damage,
+                    point,
+                    normal,
+                    DamageSender.Player,
+                    DamageType.Melee);
+
+                damageable.TakeDamage(in damageContext);
                 return true;
             }
             return false;

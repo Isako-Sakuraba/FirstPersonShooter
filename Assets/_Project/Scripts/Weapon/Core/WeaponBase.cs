@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace Game.Weapons
 {
-
     public abstract class WeaponBase : MonoBehaviour, IWeapon
     {
         private static int _equipHash = Animator.StringToHash("Equip");
@@ -11,6 +10,7 @@ namespace Game.Weapons
 
         protected Animator weaponAnimator;
         protected Animator armsAnimator;
+        protected AudioSource weaponAudio;
 
         public WeaponSlot Slot => _slot;
 
@@ -22,9 +22,10 @@ namespace Game.Weapons
 
         public virtual void WeaponAwake() { }
 
-        public virtual void Construct(Animator armsAnimator)
+        public virtual void Construct(Animator armsAnimator, AudioSource weaponAudio)
         {
             this.armsAnimator = armsAnimator;
+            this.weaponAudio = weaponAudio;
         }
 
         public virtual void OnEquip() 
