@@ -5,9 +5,18 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/_Project/Scenes/Movement Gym/MovementGym.unity
     guid: 0c47127a3aa5f324294d0a8f1df8a2a5
+  - enabled: 1
+    path: Assets/_Project/Scenes/Level1/Level1.unity
+    guid: 800383c52c8be7b4e871be25824c77fa
+  - enabled: 1
+    path: Assets/_Project/Scenes/Level2/Level2.unity
+    guid: dec71f63400972f4da04534238dad95b
+  - enabled: 1
+    path: Assets/_Project/Scenes/Level3/Level3.unity
+    guid: ee7f96a77da38514f889fdeebb5614e2
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
