@@ -262,7 +262,7 @@ MonoBehaviour:
   _gravity: -14
   _apex: 2
   _radius: 0.18
-  _bounceDamping: 0.2
+  _bounceDamping: 0.54
   _checkNearestRadius: 82.2
   _personalCollider: {fileID: 9114273319526150986}
   _trailRenderer: {fileID: 8864819902107951844}

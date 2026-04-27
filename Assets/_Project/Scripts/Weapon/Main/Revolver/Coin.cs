@@ -137,9 +137,11 @@ namespace Game.Weapons.Main
 
                 if (TryGetClosestHit(direction, distance, out RaycastHit hit))
                 {
-                    float moveDistance = Mathf.Max(hit.distance - CollisionSkin, 0f);
-                    _currentPosition += direction * moveDistance;
-                    _currentVelocity = Vector3.Reflect(_currentVelocity, hit.normal) * _bounceDamping;
+                    ReleaseSelf();
+                    return;
+                    //float moveDistance = Mathf.Max(hit.distance - CollisionSkin, 0f);
+                    //_currentPosition += direction * moveDistance;
+                    //_currentVelocity = Vector3.Reflect(_currentVelocity, hit.normal) * _bounceDamping;
                 }
                 else
                 {
@@ -351,6 +353,11 @@ namespace Game.Weapons.Main
             {
                 RedirectCoinOnly(in context, lowDamage, firstResult.CoinTarget);
             }
+            else if (firstResult.TargetType == RedirectResultType.Grenade)
+            {
+                ReleaseSelf();
+                return;
+            }
             else if (firstResult.TargetType == RedirectResultType.Enemy)
             {
                 RedirectEnemyOnly(in context, lowDamage, firstResult.EnemyTarget);
@@ -376,7 +383,7 @@ namespace Game.Weapons.Main
             ReleaseSelf();
         }
 
-        private RedirectResult RedirectSingleHit(in DamageContext context, int damage, Coin excludedCoin, Collider excludedEnemy = null)
+        private RedirectResult RedirectSingleHit(in DamageContext context, int damage, Coin excludedCoin, Collider excludedEnemy = null, Grenade excludedGrenade = null)
         {
             Vector3 origin = transform.position;
 
@@ -387,11 +394,37 @@ namespace Game.Weapons.Main
                     bestCoin.transform.position,
                     Vector3.up,
                     context.Sender,
-                    context.DamageType);
+                    context.DamageType,
+                    context.Source);
 
                 bestCoin.TakeDamage(in redirectedContext);
                 HitTracerManager.Instance.DrawTracer(origin, bestCoin.transform.position);
                 return RedirectResult.ToCoin(bestCoin);
+            }
+
+            if (TryGetNearestGrenade(origin, excludedGrenade, out Grenade bestGrenade))
+            {
+                Vector3 normal = bestGrenade.transform.position - origin;
+                if (normal.sqrMagnitude <= Mathf.Epsilon)
+                {
+                    normal = Vector3.up;
+                }
+                else
+                {
+                    normal.Normalize();
+                }
+
+                DamageContext redirectedContext = new DamageContext(
+                    damage,
+                    bestGrenade.transform.position,
+                    normal,
+                    context.Sender,
+                    context.DamageType,
+                    context.Source);
+
+                bestGrenade.TakeDamage(in redirectedContext);
+                HitTracerManager.Instance.DrawTracer(origin, bestGrenade.transform.position);
+                return RedirectResult.ToGrenade(bestGrenade);
             }
 
             if (TryGetNearestEnemy(origin, excludedEnemy, out Collider bestEnemy) && bestEnemy.TryGetComponent(out IDamageable enemy))
@@ -404,7 +437,8 @@ namespace Game.Weapons.Main
                     bestEnemy.transform.position,
                     normal,
                     context.Sender,
-                    context.DamageType);
+                    context.DamageType,
+                    context.Source);
 
                 enemy.TakeDamage(in redirectedContext);
                 HitTracerManager.Instance.DrawTracer(origin, bestEnemy.transform.position);
@@ -423,7 +457,7 @@ namespace Game.Weapons.Main
 
             if (Physics.Raycast(origin, random, out RaycastHit hitInfo, 100f, _targetLayer))
             {
-                TryDamage(hitInfo.collider, damage, hitInfo.point, hitInfo.normal);
+                TryDamage(hitInfo.collider, damage, hitInfo.point, hitInfo.normal, context.Source);
                 HitTracerManager.Instance.DrawTracer(origin, hitInfo.point);
             }
             else
@@ -447,7 +481,8 @@ namespace Game.Weapons.Main
                 bestCoin.transform.position,
                 Vector3.up,
                 context.Sender,
-                context.DamageType);
+                context.DamageType,
+                context.Source);
 
             bestCoin.TakeDamage(in redirectedContext);
             HitTracerManager.Instance.DrawTracer(origin, bestCoin.transform.position);
@@ -470,7 +505,8 @@ namespace Game.Weapons.Main
                 bestEnemy.transform.position,
                 normal,
                 context.Sender,
-                context.DamageType);
+                context.DamageType,
+                context.Source);
 
             enemy.TakeDamage(in redirectedContext);
             HitTracerManager.Instance.DrawTracer(origin, bestEnemy.transform.position);
@@ -547,6 +583,37 @@ namespace Game.Weapons.Main
             return bestEnemy != null;
         }
 
+        private bool TryGetNearestGrenade(Vector3 origin, Grenade excludedGrenade, out Grenade bestGrenade)
+        {
+            bestGrenade = null;
+            float bestDistanceSqr = _checkNearestRadius * _checkNearestRadius;
+
+            int hitCount = Physics.OverlapSphereNonAlloc(transform.position, _checkNearestRadius, _colliders, _targetLayer);
+            for (int i = 0; i < hitCount; i++)
+            {
+                Collider current = _colliders[i];
+                if (current == null || current == _selfCollider)
+                {
+                    continue;
+                }
+
+                if (!current.TryGetComponent<Grenade>(out Grenade grenade) || grenade == excludedGrenade)
+                {
+                    continue;
+                }
+
+                Vector3 currentPosition = grenade.transform.position;
+                float distanceSqr = (origin - currentPosition).sqrMagnitude;
+                if (distanceSqr < bestDistanceSqr)
+                {
+                    bestDistanceSqr = distanceSqr;
+                    bestGrenade = grenade;
+                }
+            }
+
+            return bestGrenade != null;
+        }
+
         private bool TryGetClosestHit(Vector3 direction, float distance, out RaycastHit closestHit)
         {
             closestHit = default;
@@ -587,7 +654,7 @@ namespace Game.Weapons.Main
             return found;
         }
 
-        private bool TryDamage(Collider collider, int damage, Vector3 point, Vector3 normal)
+        private bool TryDamage(Collider collider, int damage, Vector3 point, Vector3 normal, DamageSource source = DamageSource.Unknown)
         {
             if (collider.TryGetComponent<IDamageable>(out IDamageable damageable))
             {
@@ -596,7 +663,8 @@ namespace Game.Weapons.Main
                     point,
                     normal,
                     DamageSender.Player,
-                    DamageType.Piercing);
+                    DamageType.Piercing,
+                    source);
 
                 damageable.TakeDamage(in damageContext);
                 return true;
@@ -674,28 +742,34 @@ namespace Game.Weapons.Main
         {
             public readonly RedirectResultType TargetType;
             public readonly Coin CoinTarget;
+            public readonly Grenade GrenadeTarget;
             public readonly Collider EnemyTarget;
 
-            public RedirectResult(RedirectResultType targetType, Coin coinTarget, Collider enemyTarget)
+            public RedirectResult(RedirectResultType targetType, Coin coinTarget, Grenade grenadeTarget, Collider enemyTarget)
             {
                 TargetType = targetType;
                 CoinTarget = coinTarget;
+                GrenadeTarget = grenadeTarget;
                 EnemyTarget = enemyTarget;
             }
 
-            public static RedirectResult None => new RedirectResult(RedirectResultType.None, null, null);
+            public static RedirectResult None => new RedirectResult(RedirectResultType.None, null, null, null);
 
             public static RedirectResult ToCoin(Coin coin)
-                => new RedirectResult(RedirectResultType.Coin, coin, null);
+                => new RedirectResult(RedirectResultType.Coin, coin, null, null);
+
+            public static RedirectResult ToGrenade(Grenade grenade)
+                => new RedirectResult(RedirectResultType.Grenade, null, grenade, null);
 
             public static RedirectResult ToEnemy(Collider enemy)
-                => new RedirectResult(RedirectResultType.Enemy, null, enemy);
+                => new RedirectResult(RedirectResultType.Enemy, null, null, enemy);
         }
 
         private enum RedirectResultType
         {
             None,
             Coin,
+            Grenade,
             Enemy
         }
     }

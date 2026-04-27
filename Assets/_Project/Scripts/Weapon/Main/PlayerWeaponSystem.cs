@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Game.Systems;
+using Game.Weapons.Main;
 
 namespace Game.Weapons.Experimental
 {
@@ -78,10 +80,17 @@ namespace Game.Weapons.Experimental
 
         private void Update()
         {
+            UpdatePassiveWeaponStates();
+
             var context = new FireContext(_fireDirection.forward, _fireDirection.position, _hittableLayers);
 
             if (_inputService.PunchPressed)
-                _fists.OnFireStart(in context);
+            {
+                if (!TryProjectileBoostParry())
+                {
+                    _fists.OnFireStart(in context);
+                }
+            }
 
             if (!_hasWeapon)
                 return;
@@ -105,6 +114,52 @@ namespace Game.Weapons.Experimental
 
             if (_inputService.AltFireReleased)
                 _currentWeapon.weapon.OnAltFireEnd(in context);
+        }
+
+        private void UpdatePassiveWeaponStates()
+        {
+            int count = _weaponList.Count;
+            for (int i = 0; i < count; i++)
+            {
+                WeaponBase weapon = _weaponList[i];
+
+                Revolver revolver = weapon as Revolver;
+                if (revolver == null)
+                {
+                    SMG smg = weapon as SMG;
+                    if (smg != null)
+                    {
+                        smg.TickBulletRecharge();
+                    }
+
+                    continue;
+                }
+
+                revolver.TickCoinRecharge(true);
+            }
+        }
+
+        private bool TryProjectileBoostParry()
+        {
+            if (!_hasWeapon)
+            {
+                return false;
+            }
+
+            Shotgun shotgun = _currentWeapon?.weapon as Shotgun;
+            if (shotgun == null)
+            {
+                return false;
+            }
+
+            if (!shotgun.TryTriggerProjectileBoost())
+            {
+                return false;
+            }
+
+            _armsAnimator.Play("Parry", -1, 0.17f);
+            HitstopSystem.Trigger();
+            return true;
         }
 
         private void TryChangeWeapon()

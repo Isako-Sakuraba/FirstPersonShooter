@@ -8,7 +8,6 @@ namespace Game.Experimental
     {
         [SerializeField] private GameObject _overlay;
         [SerializeField] private AudioSource _parryAudio;
-        [SerializeField] private AudioSource _daamnAudio;
 
         private void Awake()
         {
@@ -21,7 +20,6 @@ namespace Game.Experimental
         {
             _overlay.SetActive(true);
             _parryAudio.Play();
-            _daamnAudio.Play();
             _parryAudio.time = 0.05f;
         }
 
