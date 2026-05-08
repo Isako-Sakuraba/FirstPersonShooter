@@ -2,20 +2,18 @@ using UnityEngine;
 
 namespace Game.Weapons.Experimental
 {
-    public class ExperimentalParryWeapon : MonoBehaviour, IWeapon
+    public class Fists : WeaponBase
     {
         private const float HitDistance = 2.8f;
         private const float ParryRadius = 0.24f;
         private const int Damage = 20;
 
-        public Animator Animator;
-
         private RaycastHit _hit;
         private Collider[] _cache = new Collider[1];
 
-        public void OnFireStart(in FireContext context)
+        public override void OnFireStart(in FireContext context)
         {
-            Animator.Play("Punch");
+            armsAnimator.Play("Punch");
             if (Physics.Raycast(context.Position, context.Direction, out _hit, HitDistance, context.LayerMask))
             {
                 if (!TryParry(_hit.collider, in context))
@@ -34,7 +32,7 @@ namespace Game.Weapons.Experimental
         {
             if (collider.TryGetComponent<IParryable>(out var parryable))
             {
-                Animator.Play("Parry", -1, 0.17f);
+                armsAnimator.Play("Parry", -1, 0.17f);
                 var parryContext = new ParryContext(ctx.Direction);
                 parryable.OnParry(parryContext);
                 return true;
@@ -46,20 +44,18 @@ namespace Game.Weapons.Experimental
         {
             if (collider.TryGetComponent<IDamageable>(out var damageable))
             {
-                Animator.Play("Punch", -1, 0.17f);
-                damageable.TakeDamage(Damage, point, normal);
+                armsAnimator.Play("Punch", -1, 0.17f);
+                var damageContext = new DamageContext(
+                    Damage,
+                    point,
+                    normal,
+                    DamageSender.Player,
+                    DamageType.Melee);
+
+                damageable.TakeDamage(in damageContext);
                 return true;
             }
             return false;
         }
-
-        public void OnFireEnd(in FireContext context) { }
-        public void OnFireHold(in FireContext context) { }
-
-        public void OnAltFireEnd(in FireContext context) { }
-        public void OnAltFireHold(in FireContext context) { }
-        public void OnAltFireStart(in FireContext context) { }
-
-        public void OnReload() { }
     }
 }

@@ -28,6 +28,12 @@
 # Visual Studio cache directory
 .vs/
 
+# Opencode settings
+.opencode/
+
+# Opencode agents config
+AGENTS.md
+
 # Gradle cache directory
 .gradle/
 

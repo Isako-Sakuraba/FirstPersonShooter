@@ -1,5 +1,4 @@
 using Game.Weapons;
-using PrimeTween;
 using UnityEngine;
 
 namespace Game.Weapons.Experimental
@@ -7,8 +6,6 @@ namespace Game.Weapons.Experimental
     [RequireComponent(typeof(HealthComponent))]
     public class ExperimentalBloodParticlesOnHit : MonoBehaviour
     {
-        [SerializeField] private ParticleSystem _bloodParticlesPrefab;
-
         private HealthComponent _healthComponent;
 
         private void Awake()
@@ -28,10 +25,13 @@ namespace Game.Weapons.Experimental
 
         private void HandleDamage(float damage, Vector3 point, Vector3 normal)
         {
-            var blood = Instantiate(_bloodParticlesPrefab, transform.root, true);
-            blood.transform.position = point;
-            blood.transform.parent = transform.root;
-            Destroy(blood.gameObject, 3f);
+            ExperimentalBloodSplatManager manager = ExperimentalBloodSplatManager.Instance;
+            if (manager == null)
+            {
+                return;
+            }
+
+            manager.SpawnBloodParticles(point);
         } 
     }
 }
