@@ -75,6 +75,14 @@ namespace Game.Weapons.Experimental
             _currentWeapon = instance;
             _currentWeapon.gameObject.SetActive(true);
             _currentWeapon.weapon.OnEquip();
+
+            int slotIndex = _availableSlots.IndexOf(slot);
+            if (slotIndex >= 0)
+            {
+                _currentSlotIndex = slotIndex;
+                _currentSlot = slot;
+            }
+
             _hasWeapon = true;
         }
 
@@ -83,6 +91,8 @@ namespace Game.Weapons.Experimental
             UpdatePassiveWeaponStates();
 
             var context = new FireContext(_fireDirection.forward, _fireDirection.position, _hittableLayers);
+
+            TrySelectWeaponByButtons();
 
             if (_inputService.PunchPressed)
             {
@@ -164,6 +174,11 @@ namespace Game.Weapons.Experimental
 
         private void TryChangeWeapon()
         {
+            if (_availableSlots.Count == 0 || _inputService.Scroll == 0)
+            {
+                return;
+            }
+
             var nextSlotIndex = _currentSlotIndex + _inputService.Scroll;
 
             if (nextSlotIndex < 0)
@@ -177,6 +192,47 @@ namespace Game.Weapons.Experimental
                 _currentSlot = _availableSlots[_currentSlotIndex];
                 SetCurrentWeapon(_currentSlot);
             }
+        }
+
+        private void TrySelectWeaponByButtons()
+        {
+            if (_availableSlots.Count == 0)
+            {
+                return;
+            }
+
+            if (_inputService.Weapon1Pressed)
+            {
+                TrySelectWeaponByIndex(0);
+                return;
+            }
+
+            if (_inputService.Weapon2Pressed)
+            {
+                TrySelectWeaponByIndex(1);
+                return;
+            }
+
+            if (_inputService.Weapon3Pressed)
+            {
+                TrySelectWeaponByIndex(2);
+            }
+        }
+
+        private void TrySelectWeaponByIndex(int index)
+        {
+            if (index < 0 || index >= _availableSlots.Count)
+            {
+                return;
+            }
+
+            WeaponSlot slot = _availableSlots[index];
+            if (_hasWeapon && slot == _currentSlot)
+            {
+                return;
+            }
+
+            SetCurrentWeapon(slot);
         }
 
         private class WeaponInstance

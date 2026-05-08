@@ -8,23 +8,42 @@ namespace Game.Experimental
     {
         [SerializeField] private LocomotionController _locomotionController;
         [SerializeField] private AudioSource _audioSource;
+        [SerializeField] private AudioClip[] _footstepClips;
+        [SerializeField, Range(0f, 1f)] private float _footstepVolume = 1f;
         [SerializeField, Min(0f)] private float _minSpeedForFootsteps = 0.1f;
-        [SerializeField, Min(0.01f)] private float _maxSpeedForCadence = 8f;
-        [SerializeField, Min(0.05f)] private float _slowStepInterval = 0.5f;
-        [SerializeField, Min(0.05f)] private float _fastStepInterval = 0.2f;
+        [SerializeField, Min(0.05f)] private float _stepDistance = 1.3f;
 
-        private float _nextStepTime;
+        private Vector3 _lastSamplePosition;
+        private float _distanceAccumulator;
+        private bool _hasLastSamplePosition;
+        private int _footstepClipIndex;
 
         private void Awake()
         {
+            if (_locomotionController == null)
+            {
+                _locomotionController = GetComponent<LocomotionController>();
+            }
+
             if (_audioSource == null)
+            {
                 _audioSource = GetComponent<AudioSource>();
+            }
+        }
+
+        private void OnEnable()
+        {
+            _distanceAccumulator = 0f;
+            _hasLastSamplePosition = false;
+            _footstepClipIndex = 0;
         }
 
         private void Update()
         {
             if (_locomotionController == null || _audioSource == null)
+            {
                 return;
+            }
 
             Vector3 velocity = _locomotionController.Velocity;
             velocity.y = 0f;
@@ -35,23 +54,75 @@ namespace Game.Experimental
                 !_locomotionController.IsSliding &&
                 speed >= _minSpeedForFootsteps;
 
+            Vector3 currentPosition = _locomotionController.transform.position;
+
             if (!shouldPlayFootsteps)
             {
-                _nextStepTime = Time.time;
+                ResetDistanceTracking(currentPosition);
                 return;
             }
 
-            if (Time.time < _nextStepTime)
+            if (!_hasLastSamplePosition)
+            {
+                _lastSamplePosition = currentPosition;
+                _hasLastSamplePosition = true;
                 return;
+            }
 
-            if (_audioSource.isPlaying)
+            Vector3 displacement = currentPosition - _lastSamplePosition;
+            displacement.y = 0f;
+            _lastSamplePosition = currentPosition;
+
+            float travelledDistance = displacement.magnitude;
+            if (travelledDistance <= Mathf.Epsilon)
+            {
                 return;
+            }
 
-            _audioSource.Play();
+            _distanceAccumulator += travelledDistance;
 
-            float normalizedSpeed = Mathf.Clamp01(speed / _maxSpeedForCadence);
-            float stepInterval = Mathf.Lerp(_slowStepInterval, _fastStepInterval, normalizedSpeed);
-            _nextStepTime = Time.time + stepInterval;
+            float stepDistance = Mathf.Max(0.05f, _stepDistance);
+            if (_distanceAccumulator < stepDistance)
+            {
+                return;
+            }
+
+            PlayNextFootstep();
+            _distanceAccumulator = Mathf.Max(0f, _distanceAccumulator - stepDistance);
+        }
+
+        private void PlayNextFootstep()
+        {
+            int clipsCount = _footstepClips != null ? _footstepClips.Length : 0;
+            if (clipsCount <= 0)
+            {
+                return;
+            }
+
+            if (_footstepClipIndex >= clipsCount)
+            {
+                _footstepClipIndex = 0;
+            }
+
+            AudioClip clip = _footstepClips[_footstepClipIndex];
+
+            _footstepClipIndex++;
+            if (_footstepClipIndex >= clipsCount)
+            {
+                _footstepClipIndex = 0;
+            }
+
+            if (clip != null)
+            {
+                _audioSource.PlayOneShot(clip, _footstepVolume);
+            }
+        }
+
+        private void ResetDistanceTracking(Vector3 currentPosition)
+        {
+            _lastSamplePosition = currentPosition;
+            _hasLastSamplePosition = true;
+            _distanceAccumulator = 0f;
         }
     }
 }

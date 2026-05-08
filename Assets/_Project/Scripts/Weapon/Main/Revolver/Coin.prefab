@@ -254,7 +254,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Weapons.Main.Coin
   _targetLayer:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 2304
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 1
@@ -283,7 +283,7 @@ GameObject:
   - component: {fileID: 2431870112385015247}
   - component: {fileID: 373017104355330374}
   - component: {fileID: 5685810532584245253}
-  m_Layer: 1
+  m_Layer: 8
   m_Name: ApexIndicator
   m_TagString: Untagged
   m_Icon: {fileID: 0}

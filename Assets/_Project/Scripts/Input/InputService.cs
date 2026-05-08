@@ -35,6 +35,9 @@ public class InputService : MonoBehaviour
     [SerializeField] private InputActionReference _jumpAction;
     [SerializeField] private InputActionReference _interactAction;
     [SerializeField] private InputActionReference _noclipAction;
+    [SerializeField] private InputActionReference _weapon1Action;
+    [SerializeField] private InputActionReference _weapon2Action;
+    [SerializeField] private InputActionReference _weapon3Action;
 
     private Vector2 _move;
     private Vector2 _mouseDelta;
@@ -55,6 +58,10 @@ public class InputService : MonoBehaviour
     private bool _altFireHeld;
     private bool _altFireReleased;
 
+    private bool _weapon1Pressed;
+    private bool _weapon2Pressed;
+    private bool _weapon3Pressed;
+
     public Vector2 Move => _move;
     public Vector2 MouseDelta => _mouseDelta;
     public bool JumpPressed => _jumpPressed;
@@ -72,6 +79,11 @@ public class InputService : MonoBehaviour
     public bool AltFirePressed => _altFirePressed;
     public bool AltFireHeld => _altFireHeld;
     public bool AltFireReleased => _altFireReleased;
+
+    public bool Weapon1Pressed => _weapon1Pressed;
+    public bool Weapon2Pressed => _weapon2Pressed;
+    public bool Weapon3Pressed => _weapon3Pressed;
+
 
     public int Scroll => _scroll;
 
@@ -100,11 +112,15 @@ public class InputService : MonoBehaviour
         _scroll = 0;
 
         if (scrollDelta < 0f)
-            _scroll = -1;
-        else if (scrollDelta > 0f)
             _scroll = 1;
+        else if (scrollDelta > 0f)
+            _scroll = -1;
 
         _puchPressed = _punchAction.action.WasPressedThisFrame();
+
+        _weapon1Pressed = _weapon1Action.action.WasPressedThisFrame();
+        _weapon2Pressed = _weapon2Action.action.WasPressedThisFrame();
+        _weapon3Pressed = _weapon3Action.action.WasPressedThisFrame();
     }
 
     private void OnEnable()

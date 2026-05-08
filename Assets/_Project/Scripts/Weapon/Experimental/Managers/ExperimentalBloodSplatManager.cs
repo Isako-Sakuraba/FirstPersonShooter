@@ -1,12 +1,23 @@
-using PrimeTween;
 using UnityEngine;
-using static UnityEngine.Rendering.DebugUI.Table;
+using UnityEngine.Pool;
 
 namespace Game.Weapons.Experimental
 {
     [DefaultExecutionOrder(-120)]
     public class ExperimentalBloodSplatManager : MonoBehaviour
     {
+        private readonly struct ActiveBloodParticles
+        {
+            public readonly ParticleSystem Particles;
+            public readonly float ReleaseTime;
+
+            public ActiveBloodParticles(ParticleSystem particles, float releaseTime)
+            {
+                Particles = particles;
+                ReleaseTime = releaseTime;
+            }
+        }
+
         private static ExperimentalBloodSplatManager _instance;
         public static ExperimentalBloodSplatManager Instance => _instance;
 
@@ -24,6 +35,12 @@ namespace Game.Weapons.Experimental
         [Header("Pool")]
         [SerializeField] int capacity = 1024;
 
+        [Header("Blood Particles")]
+        [SerializeField] private ParticleSystem _bloodSplatParticlesPrefab;
+        [SerializeField] private int _bloodParticlesPoolDefaultCapacity = 16;
+        [SerializeField] private int _bloodParticlesPoolMaxSize = 128;
+        [SerializeField] private float _bloodParticlesLifetime = 3f;
+
         Vector3[] _pos;
         Quaternion[] _rot;
         float[] _start;
@@ -32,6 +49,8 @@ namespace Game.Weapons.Experimental
         int _count;    // number of live splats (<= capacity)
 
         RenderParams _rp;
+        private ObjectPool<ParticleSystem> _bloodParticlesPool;
+        private readonly System.Collections.Generic.List<ActiveBloodParticles> _activeBloodParticles = new(64);
 
         // Safe default. Docs explain practical limits can be 511 depending on _instance payload/shader.
         const int kBatchMax = 511;
@@ -54,6 +73,18 @@ namespace Game.Weapons.Experimental
                 shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off,
                 receiveShadows = false
             };
+
+            if (_bloodSplatParticlesPrefab != null)
+            {
+                _bloodParticlesPool = new ObjectPool<ParticleSystem>(
+                    CreateBloodParticles,
+                    OnBloodParticlesGet,
+                    OnBloodParticlesRelease,
+                    OnBloodParticlesDestroy,
+                    collectionCheck: true,
+                    defaultCapacity: Mathf.Max(1, _bloodParticlesPoolDefaultCapacity),
+                    maxSize: Mathf.Max(1, _bloodParticlesPoolMaxSize));
+            }
         }
 
         /// Adds a splat. If pool is full, overwrites the oldest (FIFO).
@@ -89,10 +120,42 @@ namespace Game.Weapons.Experimental
         {
             _head = 0;
             _count = 0;
+
+            int activeCount = _activeBloodParticles.Count;
+            for (int i = 0; i < activeCount; i++)
+            {
+                ActiveBloodParticles active = _activeBloodParticles[i];
+                if (active.Particles != null)
+                {
+                    _bloodParticlesPool?.Release(active.Particles);
+                }
+            }
+
+            _activeBloodParticles.Clear();
+        }
+
+        public void SpawnBloodParticles(Vector3 position)
+        {
+            if (_bloodParticlesPool == null)
+            {
+                return;
+            }
+
+            ParticleSystem particles = _bloodParticlesPool.Get();
+            particles.transform.position = position;
+            particles.transform.rotation = Quaternion.identity;
+
+            particles.Clear(true);
+            particles.Play(true);
+
+            float releaseTime = Time.time + Mathf.Max(0.01f, _bloodParticlesLifetime);
+            _activeBloodParticles.Add(new ActiveBloodParticles(particles, releaseTime));
         }
 
         void LateUpdate()
         {
+            UpdateBloodParticlesPool();
+
             if (_count == 0) return;
 
             float time = Time.time;
@@ -138,6 +201,59 @@ namespace Game.Weapons.Experimental
 
                 start += batch;
                 length -= batch;
+            }
+        }
+
+        private void UpdateBloodParticlesPool()
+        {
+            if (_activeBloodParticles.Count == 0 || _bloodParticlesPool == null)
+            {
+                return;
+            }
+
+            float now = Time.time;
+            for (int i = _activeBloodParticles.Count - 1; i >= 0; i--)
+            {
+                ActiveBloodParticles active = _activeBloodParticles[i];
+                if (active.Particles == null)
+                {
+                    _activeBloodParticles.RemoveAt(i);
+                    continue;
+                }
+
+                if (now < active.ReleaseTime)
+                {
+                    continue;
+                }
+
+                _bloodParticlesPool.Release(active.Particles);
+                _activeBloodParticles.RemoveAt(i);
+            }
+        }
+
+        private ParticleSystem CreateBloodParticles()
+        {
+            ParticleSystem particles = Instantiate(_bloodSplatParticlesPrefab, transform, true);
+            particles.gameObject.SetActive(false);
+            return particles;
+        }
+
+        private static void OnBloodParticlesGet(ParticleSystem particles)
+        {
+            particles.gameObject.SetActive(true);
+        }
+
+        private static void OnBloodParticlesRelease(ParticleSystem particles)
+        {
+            particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            particles.gameObject.SetActive(false);
+        }
+
+        private static void OnBloodParticlesDestroy(ParticleSystem particles)
+        {
+            if (particles != null)
+            {
+                Destroy(particles.gameObject);
             }
         }
     }
