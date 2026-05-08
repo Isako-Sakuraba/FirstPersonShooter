@@ -8,7 +8,11 @@ public class NextLevel : MonoBehaviour
     public String level;
     public void Press() {
         if (isactivate) {
-           SceneManager.LoadScene(level); 
+            Invoke("LoadScene", 2.0f);
         }
+    }
+
+    void LoadScene() {
+        SceneManager.LoadScene(level); 
     }
 }
