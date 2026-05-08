@@ -23,20 +23,22 @@ namespace Game.Weapons
             _currentHealth = _initialHealth;
         }
 
-        public void TakeDamage(int damage, Vector3 point, Vector3 normal)
+        public DamageResult TakeDamage(in DamageContext context)
         {
             if (IsDead)
-                return;
+                return new DamageResult(context.Point);
 
-            _currentHealth -= damage;
-            OnDamaged.Invoke(damage);
-            OnDamagedAdvanced.Invoke(damage, point, normal);
+            _currentHealth -= context.Damage;
+            OnDamaged.Invoke(context.Damage);
+            OnDamagedAdvanced.Invoke(context.Damage, context.Point, context.Normal);
 
             if (_currentHealth <= 0)
             {
                 _currentHealth = 0;
                 OnDied.Invoke();
             }
+
+            return new DamageResult(context.Point);
         }
     }
 }

@@ -18,6 +18,8 @@ namespace Game.Weapons
 
     public interface IWeapon
     {
+        public void Construct(Animator armsAnimator, AudioSource weaponAudio);
+
         public void OnFireStart(in FireContext context);
         public void OnFireHold(in FireContext context);
         public void OnFireEnd(in FireContext context);
@@ -26,6 +28,7 @@ namespace Game.Weapons
         public void OnAltFireHold(in FireContext context);
         public void OnAltFireEnd(in FireContext context);
 
+        public void OnEquip();
         public void OnReload();
     }
 }

@@ -36,7 +36,14 @@ namespace Game.Weapons.Experimental
             if (hit.collider.TryGetComponent<IDamageable>(out var damageable) ||
                 hit.collider.GetComponentInParent<IDamageable>() is { } parentDamageable && (damageable = parentDamageable) != null)
             {
-                damageable.TakeDamage(_damage, hit.point, hit.normal);
+                var damageContext = new DamageContext(
+                    _damage,
+                    hit.point,
+                    hit.normal,
+                    DamageSender.Player,
+                    DamageType.Piercing);
+
+                damageable.TakeDamage(in damageContext);
             }
         }
 
