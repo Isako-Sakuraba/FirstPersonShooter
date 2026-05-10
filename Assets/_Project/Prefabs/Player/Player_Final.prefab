@@ -5241,6 +5241,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Weapons.Experimental.Fists
   _slot: 0
+  _healthRestoreOnParry: 20
 --- !u!95 &8602710899401486439 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: ccd826a43fb564147bb839d4e59a7dcc, type: 3}

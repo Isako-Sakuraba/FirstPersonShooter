@@ -64,5 +64,15 @@ namespace Game.Player
         {
             Died.Invoke();
         }
+
+        public void RestoreHealth(int amount)
+        {
+            if (_healthComponent == null)
+            {
+                return;
+            }
+
+            _healthComponent.RestoreHealth(amount);
+        }
     }
 }

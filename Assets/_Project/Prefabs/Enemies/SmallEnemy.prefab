@@ -47,6 +47,7 @@ GameObject:
   - component: {fileID: 2559286974034044869}
   - component: {fileID: 1229854252810227586}
   - component: {fileID: 5191221667044462865}
+  - component: {fileID: -4694128629428758884}
   m_Layer: 8
   m_Name: SmallEnemy
   m_TagString: Enemy
@@ -176,6 +177,20 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   _animationController: {fileID: 83001251032960652}
+--- !u!114 &-4694128629428758884
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1812400032739592652}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db187d28a94303e4c8058c6b1bbfe2d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Player.AddHealthOnDeath
+  _healthComponent: {fileID: 6207729137719919944}
+  _healthToRestore: 12
 --- !u!1001 &5786127831549031197
 PrefabInstance:
   m_ObjectHideFlags: 0

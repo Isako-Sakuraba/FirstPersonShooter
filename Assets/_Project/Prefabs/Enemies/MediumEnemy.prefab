@@ -78,6 +78,7 @@ GameObject:
   - component: {fileID: 7067252218592573555}
   - component: {fileID: 315643676418798726}
   - component: {fileID: 2668228405862549994}
+  - component: {fileID: 6402862637656462610}
   m_Layer: 8
   m_Name: MediumEnemy
   m_TagString: Enemy
@@ -187,7 +188,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8059023e6b75b841a540866f72072bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Weapons.HealthComponent
-  _initialHealth: 100
+  _initialHealth: 80
 --- !u!114 &315643676418798726
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -212,6 +213,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac44d5ace6affea47b6f0dd0e592cac7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Weapons.Experimental.ExperimentalDeath
+--- !u!114 &6402862637656462610
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6441080788987719007}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db187d28a94303e4c8058c6b1bbfe2d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Player.AddHealthOnDeath
+  _healthComponent: {fileID: 7067252218592573555}
+  _healthToRestore: 36
 --- !u!1 &7712567363397686709
 GameObject:
   m_ObjectHideFlags: 0
