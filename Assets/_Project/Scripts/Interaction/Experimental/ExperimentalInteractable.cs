@@ -14,6 +14,9 @@ namespace Game.Experimental
 
         public IInteractable Interactable => this;
 
+        private string[] _messagePool = new string[] { "Interact", "I", "can", "change", "messages", "YIPPEE", ">:D", "<3" };
+        private int _last = 0;
+
         private void Start()
         {
             _defaultPos = transform.position;
@@ -22,18 +25,20 @@ namespace Game.Experimental
         public void OnFocusEnter(in InteractionContext context)
         {
             if (_tween.isAlive) _tween.Complete();
-            _tween = Tween.Scale(_visualTarget, 1.2f, 0.5f);
+            _tween = Tween.Scale(_visualTarget, 0.68f, 0.5f);
         }
 
         public void OnFocusExit(in InteractionContext context)
         {
             if (_tween.isAlive) _tween.Complete();
-            _tween = Tween.Scale(_visualTarget, 1f, 0.5f);
+            _tween = Tween.Scale(_visualTarget, 0.5f, 0.5f);
         }
 
         public void Interact(in InteractionContext context)
         {
-            Tween.Scale(_visualTarget, 1.4f, 0.2f, cycleMode: CycleMode.Yoyo, cycles: 2);
+            Tween.Scale(_visualTarget, 0.8f, 0.2f, cycleMode: CycleMode.Yoyo, cycles: 2);
+            _last++;
+            _last %= _messagePool.Length;
         }
 
         public bool CanInteract(in InteractionContext context)
@@ -48,7 +53,7 @@ namespace Game.Experimental
 
         public DisplayInfo GetInteractionPointDisplay(in InteractionContext context)
         {
-            return new DisplayInfo(_visualTarget.position, _text);
+            return new DisplayInfo(_visualTarget.position, _messagePool[_last]);
         }
     }
 }

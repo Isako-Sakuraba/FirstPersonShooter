@@ -1,10 +1,14 @@
 using ECM2;
+using Game.Data.Movement;
+using UnityEngine;
 
 namespace Game.Movement
 {
     public class LocomotionSensors
     {
         private CharacterMovement _controller;
+        private MovementConfig _config;
+        private Transform _pointer;
 
         private CollisionResult _wallCollision;
         private bool _wallDetected;
@@ -12,10 +16,11 @@ namespace Game.Movement
         public CollisionResult WallCollision => _wallCollision;
         public bool WallDetected => _wallDetected;
 
-
-        public LocomotionSensors(CharacterMovement controller)
+        public LocomotionSensors(CharacterMovement controller, MovementConfig config, Transform pointer)
         {
             _controller = controller;
+            _config = config;
+            _pointer = pointer;
         }
 
         public void Update()

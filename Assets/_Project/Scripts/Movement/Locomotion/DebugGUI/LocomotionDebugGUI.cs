@@ -10,6 +10,7 @@ namespace Game.Movement.Debugging
         [SerializeField] private DebugProperty _debugVelocity = new DebugProperty(Color.red, true, 1f);
         [SerializeField] private DebugProperty _debugState = new DebugProperty(Color.blue, true, 1f);
         [SerializeField] private DebugProperty _debugTimers = new DebugProperty(Color.darkBlue, true, 1f);
+        [SerializeField] private DebugProperty _debugGrapple = new DebugProperty(Color.purple, true, 1f);
 
         private void OnGUI()
         {

@@ -1,5 +1,7 @@
+using Game.Movement.API.Requests;
 using Game.Utils;
 using ImprovedTimers;
+using System;
 using UnityEngine;
 using UnityEngine.Splines;
 
@@ -11,6 +13,7 @@ namespace Game.Movement
         public readonly JumpRuntime Jump = new();
         public readonly WallrunRuntime Wallrun = new();
         public readonly RailRuntime Rail = new();
+        public readonly GrappleRuntime Grapple = new();
 
         public sealed class KinematicsRuntime
         {
@@ -46,6 +49,21 @@ namespace Game.Movement
 
             public Pending<RailAttachPayload> AttachmentPayload;
             public Pending<RailDetachPayload> DetachmentPayload;
+        }
+
+        public sealed class GrappleRuntime
+        {
+            public bool IsGrappled;
+            public Vector3 LocalPoint;
+            public Transform Target;
+            public Vector3 WorldPoint;
+            public float CurrentLength;
+            public float MaxLength;
+
+            public Action<bool> OnGrappleStatusChanged = delegate { };
+
+            public Pending<GrappleAttachPayload> AttachmentPayload;
+            public Pending<GrappleDetachPayload> DetachmentPayload;
         }
     }
 
@@ -88,8 +106,23 @@ namespace Game.Movement
         }
     }
 
-    public readonly struct RailDetachPayload
+    public readonly struct RailDetachPayload { }
+
+    public readonly struct GrappleAttachPayload
     {
-        
+        public readonly GrappleType Type;
+        public readonly Vector3 LocalPoint;
+        public readonly Transform Target;
+        public readonly float MaxLength;
+
+        public GrappleAttachPayload(GrappleType type, Vector3 localPoint, Transform target, float maxLength)
+        {
+            Type = type;
+            LocalPoint = localPoint;
+            Target = target;
+            MaxLength = maxLength;
+        }
     }
+
+    public readonly struct GrappleDetachPayload { }
 }

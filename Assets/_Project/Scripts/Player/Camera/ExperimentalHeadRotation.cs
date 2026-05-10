@@ -40,7 +40,7 @@ namespace Game.Experimental
             {
                 Vector3 wallN = _info.WallNormal;
 
-                float side = Vector3.Dot(wallN, _info.Right); // >0 => wall normal points right => wall is on left, typically
+                float side = Vector3.Dot(wallN, _info.Right); // >0 => wall normal _lineRendererPoints right => wall is on left, typically
                 // We want the wall side, not normal direction. If your normal convention differs, flip the sign.
                 // Lean into wall: wall on right -> roll right. A simple way is invert side.
                 float leanSign = -Mathf.Sign(side);
@@ -75,7 +75,7 @@ namespace Game.Experimental
                 {
                     Vector3 dir = horiz / speed;
 
-                    // How much the slide points to the player's right (-1..+1)
+                    // How much the slide _lineRendererPoints to the player's right (-1..+1)
                     float dotRight = Vector3.Dot(dir, _info.Right);
 
                     // Slide right -> tilt left (negative)

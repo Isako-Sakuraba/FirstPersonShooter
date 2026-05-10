@@ -15,6 +15,8 @@ namespace Game.Movement
         public readonly LocomotionInput Input;
         public readonly LocomotionState State;
 
+        public readonly Transform Pointer;
+
         public bool IsGrounded => Motor.isGrounded;
 
         public Vector3 WishDir { get; private set; }
@@ -23,6 +25,7 @@ namespace Game.Movement
             MovementConfig data,
             CharacterMovement motor,
             CharacterOrientation orientation,
+            Transform pointer,
             BodyController body,
             LocomotionSensors sensors,
             LocomotionInput input,
@@ -35,6 +38,7 @@ namespace Game.Movement
             Sensors = sensors;
             Input = input;
             State = state;
+            Pointer = pointer;
         }
 
         public void InitializeTimers()
@@ -46,7 +50,7 @@ namespace Game.Movement
 
         public void RecalculateWishDir()
         {
-            var wish = Orientation.Forward * Input.Move.y + Orientation.Right * Input.Move.x;
+            var wish = Orientation.ForwardFlat * Input.Move.y + Orientation.RightFlat * Input.Move.x;
             WishDir = Vector3.ClampMagnitude(wish, 1f);
         }
     }

@@ -2,6 +2,7 @@ using ECM2;
 using Game.Data.Movement;
 using Game.Movement.API;
 using Game.Movement.API.Requests;
+using System;
 using UnityEngine;
 
 namespace Game.Movement
@@ -12,6 +13,7 @@ namespace Game.Movement
         [SerializeField] private MovementConfig _movementData;
         [SerializeField] private BodyConfig _bodyData;
         [SerializeField] private CharacterOrientation _orientation;
+        [SerializeField] private Transform _pointer; //TODO: move somewhere else
 
         private CharacterMovement _motor;
 
@@ -30,6 +32,24 @@ namespace Game.Movement
             _inputSource = inputSource;
         }
 
+        private void OnEnable()
+        {
+            _state.Grapple.OnGrappleStatusChanged += GrappleStatusChanged;
+        }
+
+        private void OnDisable()
+        {
+            _state.Grapple.OnGrappleStatusChanged -= GrappleStatusChanged;
+        }
+
+        private void GrappleStatusChanged(bool attached)
+        {
+            if (attached)
+                OnGrappleAttached.Invoke();
+            else
+                OnGrappleDetached.Invoke(transform.position);
+        }
+
         private void Awake()
         {
             _motor = GetComponent<CharacterMovement>();
@@ -39,12 +59,13 @@ namespace Game.Movement
             _input = new LocomotionInput();
 
             _body = new BodyController(_motor, _bodyData);
-            _sensors = new LocomotionSensors(_motor);
+            _sensors = new LocomotionSensors(_motor, _movementData, _pointer);
 
             _context = new LocomotionContext(
                 _movementData,
                 _motor,
                 _orientation,
+                _pointer,
                 _body,
                 _sensors,
                 _input,
@@ -98,11 +119,10 @@ namespace Game.Movement
         }
     }
 
-    public partial class LocomotionController
-        : IReadOnlyLocomotionController
+    public partial class LocomotionController : IReadOnlyLocomotionController
     {
-        public Vector3 Forward => _context.Orientation.Forward;
-        public Vector3 Right => _context.Orientation.Right;
+        public Vector3 Forward => _context.Orientation.ForwardFlat;
+        public Vector3 Right => _context.Orientation.RightFlat;
 
         public IBodyState Body => _body;
 
@@ -118,15 +138,21 @@ namespace Game.Movement
         public bool IsRailgrinding => _machine.CurrentState == LocomotionMachineState.Rail;
 
         public bool HasWallContact => _context.Sensors.WallDetected;
-
         public Vector3 WallNormal => _context.Sensors.WallCollision.normal;
+
+        public bool IsGrappling => _machine.CurrentState == LocomotionMachineState.Grapple;
+        public Vector3 PivotWorldPoint => _state.Grapple.WorldPoint;
+        public float MaxLength => _state.Grapple.MaxLength;
+        public float CurrentLength => _state.Grapple.CurrentLength;
+
+        public event Action OnGrappleAttached = delegate { };
+        public event Action<Vector3> OnGrappleDetached = delegate { };
 
         public string GetMachinePath()
             => _machine.GetFullPath();
     }
 
-    public partial class LocomotionController
-        : IRailAttachable
+    public partial class LocomotionController : IRailAttachable
     {
         public bool IsAttachedToRail => _state.Rail.IsAttached;
 
@@ -145,6 +171,28 @@ namespace Game.Movement
                 return;
 
             _state.Rail.DetachmentPayload.Set(new RailDetachPayload());
+        }
+    }
+
+    public partial class LocomotionController : IGrappleAttachable
+    {
+        public bool IsGrappleAttached => _state.Grapple.IsGrappled;
+
+        public bool TryGrappleAttach(in GrappleAttachRequest request)
+        {
+            if (_state.Grapple.IsGrappled || _state.Grapple.AttachmentPayload.IsPresent || _context.IsGrounded)
+                return false;
+
+            _state.Grapple.AttachmentPayload.Set(new GrappleAttachPayload(request.Type, request.LocalPoint, request.Target, request.MaxLength));
+            return true;
+        }
+
+        public void DetachGrapple()
+        {
+            if (!_state.Grapple.IsGrappled || _state.Grapple.DetachmentPayload.IsPresent)
+                return;
+
+            _state.Grapple.DetachmentPayload.Set(new GrappleDetachPayload());
         }
     }
 }

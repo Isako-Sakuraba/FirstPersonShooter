@@ -61,5 +61,12 @@ MonoBehaviour:
     SnapPositionDelta: 0.0004
     Gravity: -32
     AlwaysApplyGravity: 0
+  Grapple:
+    Gravity: -10
+    Drag: 0.5
+    Distance: 100
+    GrappableLayers:
+      serializedVersion: 2
+      m_Bits: 1
   Environment:
     Gravity: -18

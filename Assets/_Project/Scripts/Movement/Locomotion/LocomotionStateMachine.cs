@@ -14,7 +14,8 @@ namespace Game.Movement
         Air,
         Jump,
         Wall,
-        Rail
+        Rail,
+        Grapple
     }
 
     public class LocomotionStateMachine : StateMachine<LocomotionMachineState>
@@ -48,6 +49,7 @@ namespace Game.Movement
             var fallState = new AirState(context);
             var wallRunState = new WallState(context);
             var railState = new RailState(context);
+            var grappleState = new GrappleState(context);
 
             // Register HFSMs
             machine.AddState(LMS.Grounded, groundedFSM);
@@ -55,6 +57,7 @@ namespace Game.Movement
             machine.AddState(LMS.Jump, jumpState);
             machine.AddState(LMS.Wall, wallRunState);
             machine.AddState(LMS.Rail, railState);
+            machine.AddState(LMS.Grapple, grappleState);
 
             // Add grounded states
             groundedFSM.AddState(GroundedState.Move, moveState);
@@ -130,6 +133,16 @@ namespace Game.Movement
 
             machine.AddTransition(LMS.Rail, LMS.Air, fromRailEnded);
             machine.AddTransition(LMS.Rail, LMS.Jump, railJumpTransition, true);
+
+            // Grapple transitions
+            var toGrapple = new Trans(context, ctx => ctx.State.Grapple.AttachmentPayload.IsPresent && !ctx.State.Grapple.IsGrappled);
+            var fromGrapple = new Trans(context, ctx => ctx.Input.CrouchHeld);
+            var grappleJump = new Trans(context, ctx => ctx.Input.JumpBufferTimer.IsRunning);
+            var grappleJumpAction = new ATrans(grappleJump, context, ctx => ctx.State.Jump.Payload.Set(new(JumpKind.Normal)));
+
+            machine.AddTransition(LMS.Air, LMS.Grapple, toGrapple);
+            machine.AddTransition(LMS.Grapple, LMS.Air, fromGrapple);
+            machine.AddTransition(LMS.Grapple, LMS.Air, grappleJumpAction);
         }
 
         private void CreateGroundedTransitions(LocomotionContext context)

@@ -19,11 +19,13 @@ namespace Game.Experimental
         {
             _bodyState = _player.Body;
             OnStanceChanged(_player.Body.Stance);
+            _player.Body.OnStanceChanged += OnStanceChanged;
         }
 
         private void OnEnable()
         {
-            _player.Body.OnStanceChanged += OnStanceChanged;
+            if (_player.Body != null)
+                _player.Body.OnStanceChanged += OnStanceChanged;
         }
 
         private void OnDisable()
