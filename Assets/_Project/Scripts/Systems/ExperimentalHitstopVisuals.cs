@@ -19,9 +19,12 @@ namespace Game.Experimental
         private void HitstopStart()
         {
             if (_overlay != null)
-                _overlay.SetActive(true);
-            _parryAudio.Play();
-            _parryAudio.time = 0.05f;
+                    _overlay.SetActive(true);
+            if (_parryAudio != null)
+            {
+                _parryAudio.Play();
+                _parryAudio.time = 0.05f;
+            }
         }
 
         private void HitstopEnd()
