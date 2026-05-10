@@ -37,7 +37,7 @@ namespace Game.Systems
 
         private void Start()
         {
-            if (_lockCursor && !_isOpen)
+            if (!_lockCursor && !_isOpen)
             {
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
