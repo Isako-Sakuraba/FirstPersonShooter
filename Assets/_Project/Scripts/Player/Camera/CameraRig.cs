@@ -1,4 +1,5 @@
 using Game.Movement;
+using Game.Player;
 using UnityEngine;
 
 namespace Game.Rigs
@@ -30,6 +31,12 @@ namespace Game.Rigs
 
         private void Update()
         {
+            if (PlayerHealth.Instance != null && PlayerHealth.Instance.IsDead)
+            {
+                _previousDelta = Vector2.zero;
+                return;
+            }
+
             Vector2 delta = _inputService.MouseDelta;
             float dt = Time.unscaledDeltaTime;
             float smoothingFactor = 1f - Mathf.Exp(-_smoothing * dt);
