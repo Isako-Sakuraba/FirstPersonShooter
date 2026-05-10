@@ -4402,7 +4402,7 @@ MonoBehaviour:
   _orientation: {fileID: 726454926489141577}
   _target: {fileID: 471096463567195084}
   _head: {fileID: 4023401575295038205}
-  _sensitivity: {x: 0.2, y: 0.2}
+  _sensitivity: {x: 1, y: 1}
   _smoothing: 80
   _pitchLimits: {x: -90, y: 90}
   _lockCursor: 1

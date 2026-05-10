@@ -45,6 +45,10 @@ namespace Game.Rigs
             float mouseX = delta.x * _sensitivity.x;
             float mouseY = delta.y * _sensitivity.y;
 
+            float sensitivityScale = SensitivitySlider.Value;
+            mouseX *= sensitivityScale;
+            mouseY *= sensitivityScale;
+
             _yaw += mouseX;
 
             _pitch -= mouseY;
