@@ -46278,10 +46278,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2403799051431520206, guid: 7a2a1bf9248c05245a3d1e6be96aee2e, type: 3}
-      propertyPath: _coinAudioSource
-      value: 
-      objectReference: {fileID: 6799170963044674798}
     - target: {fileID: 6678166528680772437, guid: 7a2a1bf9248c05245a3d1e6be96aee2e, type: 3}
       propertyPath: m_Name
       value: Services
@@ -46459,11 +46455,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 93fb33726d1d82b4fbff4a9027f1ea76, type: 3}
---- !u!82 &6799170963044674798 stripped
-AudioSource:
-  m_CorrespondingSourceObject: {fileID: 5801260976095183087, guid: e491fce0b0ed9e245aff2c82cc642173, type: 3}
-  m_PrefabInstance: {fileID: 3534168571088323518}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8784188590446224605
 PrefabInstance:
   m_ObjectHideFlags: 0
