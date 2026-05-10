@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using ECM2;
 using UnityEngine;
 using Game.Movement;
+using Game.Systems;
 using Game.Weapons;
 
 namespace Game.Experimental
@@ -250,7 +251,8 @@ namespace Game.Experimental
                 return;
             }
 
-            AudioSource.PlayClipAtPoint(_explosionAudio.Clip, point, _explosionAudio.ResolveVolume());
+            float volume = _explosionAudio.ResolveVolume() * VolumeSlider.SfxVolume01;
+            AudioSource.PlayClipAtPoint(_explosionAudio.Clip, point, Mathf.Clamp01(volume));
         }
     }
 }

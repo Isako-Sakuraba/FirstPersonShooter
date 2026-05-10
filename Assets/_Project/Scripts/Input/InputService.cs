@@ -35,6 +35,7 @@ public class InputService : MonoBehaviour
     [SerializeField] private InputActionReference _jumpAction;
     [SerializeField] private InputActionReference _interactAction;
     [SerializeField] private InputActionReference _noclipAction;
+    [SerializeField] private InputActionReference _exitAction;
     [SerializeField] private InputActionReference _weapon1Action;
     [SerializeField] private InputActionReference _weapon2Action;
     [SerializeField] private InputActionReference _weapon3Action;
@@ -47,6 +48,7 @@ public class InputService : MonoBehaviour
     private bool _crouch;
     private bool _interact;
     private bool _noclipPressed;
+    private bool _exitPressed;
     private bool _puchPressed;
     private int _scroll;
 
@@ -70,6 +72,7 @@ public class InputService : MonoBehaviour
     public bool Crouch => _crouch;
     public bool Interact => _interact;
     public bool NoclipPressed => _noclipPressed;
+    public bool ExitPressed => _exitPressed;
     public bool PunchPressed => _puchPressed;
 
     public bool FirePressed => _firePressed;
@@ -99,6 +102,7 @@ public class InputService : MonoBehaviour
         _crouch = _crouchAction.action.ReadValue<float>() > 0.1f;
         _interact = _interactAction.action.triggered;
         _noclipPressed = _noclipAction.action.triggered;
+        _exitPressed = _exitAction.action.WasPressedThisFrame();
 
         _firePressed = _fireAction.action.WasPressedThisFrame();
         _fireHeld = _fireAction.action.IsPressed();
@@ -121,6 +125,8 @@ public class InputService : MonoBehaviour
         _weapon1Pressed = _weapon1Action.action.WasPressedThisFrame();
         _weapon2Pressed = _weapon2Action.action.WasPressedThisFrame();
         _weapon3Pressed = _weapon3Action.action.WasPressedThisFrame();
+
+        Debug.Log($"ExitPressed: {_exitPressed}");
     }
 
     private void OnEnable()

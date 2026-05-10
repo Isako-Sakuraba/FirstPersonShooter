@@ -1,5 +1,6 @@
 using Game.Movement;
 using Game.Player;
+using Game.Systems;
 using UnityEngine;
 
 namespace Game.Rigs
@@ -22,16 +23,24 @@ namespace Game.Rigs
         private Vector2 _previousDelta;
 
         private InputService _inputService;
+        private PauseMenu _pauseMenu;
 
         private void Awake()
         {
             _inputService = InputService.Instance;
+            _pauseMenu = FindFirstObjectByType<PauseMenu>();
             LockCursor();
         }
 
         private void Update()
         {
             if (PlayerHealth.Instance != null && PlayerHealth.Instance.IsDead)
+            {
+                _previousDelta = Vector2.zero;
+                return;
+            }
+
+            if (_pauseMenu != null && _pauseMenu.IsOpen)
             {
                 _previousDelta = Vector2.zero;
                 return;
