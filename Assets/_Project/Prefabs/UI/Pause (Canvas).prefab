@@ -1344,6 +1344,8 @@ GameObject:
   m_Component:
   - component: {fileID: 7207216177568067244}
   - component: {fileID: 1154483988794360814}
+  - component: {fileID: 4191434424882779997}
+  - component: {fileID: 3193316165662243423}
   m_Layer: 5
   m_Name: PauseMenuHandler
   m_TagString: Untagged
@@ -1386,6 +1388,39 @@ MonoBehaviour:
   _menuRoot: {fileID: 9176615413499175824}
   _menuCanvasGroup: {fileID: 0}
   _lockCursor: 1
+--- !u!114 &4191434424882779997
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8196088982920922609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99412d81fb9e6cb42979c59c2e853274, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Systems.VolumeSlider
+  _audioMixer: {fileID: 24100000, guid: b98fe0cae45a5ad42bcf6021cc8e2d6b, type: 2}
+  _sfxVolumeSlider: {fileID: 1404524972382595194}
+  _musicVolumeSlider: {fileID: 6912515930741205231}
+  _sfxExposedParameter: SFXVolume
+  _musicExposedParameter: MusicVolume
+  _defaultSfxVolume: 1
+  _defaultMusicVolume: 1
+--- !u!114 &3193316165662243423
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8196088982920922609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd2d43a3d711bdf4699d59e1a805354e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Rigs.SensitivitySlider
+  _slider: {fileID: 5929407222398874991}
+  _defaultValue: 0.2
 --- !u!1 &8519672741691228187
 GameObject:
   m_ObjectHideFlags: 0
@@ -1700,8 +1735,6 @@ GameObject:
   - component: {fileID: 8444067471484395096}
   - component: {fileID: 4698233264348410711}
   - component: {fileID: 8510831877606468805}
-  - component: {fileID: 5617788723874038902}
-  - component: {fileID: 8025414315178495270}
   m_Layer: 5
   m_Name: PauseMenu
   m_TagString: Untagged
@@ -1770,36 +1803,3 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &5617788723874038902
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9176615413499175824}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 99412d81fb9e6cb42979c59c2e853274, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.Systems.VolumeSlider
-  _audioMixer: {fileID: 24100000, guid: b98fe0cae45a5ad42bcf6021cc8e2d6b, type: 2}
-  _sfxVolumeSlider: {fileID: 1404524972382595194}
-  _musicVolumeSlider: {fileID: 6912515930741205231}
-  _sfxExposedParameter: SFXVolume
-  _musicExposedParameter: MusicVolume
-  _defaultSfxVolume: 1
-  _defaultMusicVolume: 1
---- !u!114 &8025414315178495270
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9176615413499175824}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cd2d43a3d711bdf4699d59e1a805354e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.Rigs.SensitivitySlider
-  _slider: {fileID: 5929407222398874991}
-  _defaultValue: 0.2
