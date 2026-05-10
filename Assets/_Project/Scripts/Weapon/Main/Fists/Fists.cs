@@ -1,4 +1,5 @@
 using UnityEngine;
+using Game.Player;
 
 namespace Game.Weapons.Experimental
 {
@@ -7,6 +8,8 @@ namespace Game.Weapons.Experimental
         private const float HitDistance = 2.8f;
         private const float ParryRadius = 0.24f;
         private const int Damage = 20;
+
+        [SerializeField] private int _healthRestoreOnParry = 5;
 
         private RaycastHit _hit;
         private Collider[] _cache = new Collider[1];
@@ -35,9 +38,26 @@ namespace Game.Weapons.Experimental
                 armsAnimator.Play("Parry", -1, 0.17f);
                 var parryContext = new ParryContext(ctx.Direction);
                 parryable.OnParry(parryContext);
+                RestoreHealthOnParry();
                 return true;
             }
             return false;
+        }
+
+        private void RestoreHealthOnParry()
+        {
+            if (_healthRestoreOnParry <= 0)
+            {
+                return;
+            }
+
+            PlayerHealth playerHealth = PlayerHealth.Instance;
+            if (playerHealth == null)
+            {
+                return;
+            }
+
+            playerHealth.RestoreHealth(_healthRestoreOnParry);
         }
 
         private bool TryDamage(Collider collider, in FireContext ctx, Vector3 point, Vector3 normal)

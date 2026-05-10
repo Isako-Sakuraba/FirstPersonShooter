@@ -30,10 +30,12 @@ namespace Game.Weapons.Experimental
         private List<WeaponSlot> _availableSlots;
 
         private InputService _inputService;
+        private PauseMenu _pauseMenu;
 
         private void Awake()
         {
             _inputService = InputService.Instance;
+            _pauseMenu = FindFirstObjectByType<PauseMenu>();
             _availableSlots = Enum.GetValues(typeof(WeaponSlot))
                 .Cast<WeaponSlot>()
                 .ToList();
@@ -88,6 +90,11 @@ namespace Game.Weapons.Experimental
 
         private void Update()
         {
+            if (_pauseMenu != null && _pauseMenu.IsOpen)
+            {
+                return;
+            }
+
             UpdatePassiveWeaponStates();
 
             var context = new FireContext(_fireDirection.forward, _fireDirection.position, _hittableLayers);

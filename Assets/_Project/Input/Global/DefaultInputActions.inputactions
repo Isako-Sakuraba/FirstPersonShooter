@@ -116,7 +116,7 @@
                 },
                 {
                     "name": "Weapon2",
-                    "type": "Value",
+                    "type": "Button",
                     "id": "d1847c45-168d-46ae-85ec-4f056ce4b18f",
                     "expectedControlType": "",
                     "processors": "",
@@ -127,6 +127,15 @@
                     "name": "Weapon3",
                     "type": "Button",
                     "id": "c50a95e9-cae8-46ef-b0c1-6adb2724a79d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Exit",
+                    "type": "Button",
+                    "id": "b200b297-612d-497c-8767-2fb9558239d3",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -268,6 +277,17 @@
                 },
                 {
                     "name": "",
+                    "id": "de916924-bcab-4cfe-b62e-b1cc634df2d5",
+                    "path": "<Keyboard>/f",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Punch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "942d0784-3487-42c7-bdbb-9d46b09c811c",
                     "path": "<Mouse>/scroll",
                     "interactions": "",
@@ -329,6 +349,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Weapon3",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8ca85475-2650-4573-9c79-31528169efc4",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Exit",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
